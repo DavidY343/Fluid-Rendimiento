@@ -102,6 +102,8 @@ int comprobar_archivos(std::vector<std::string> const & argumentos, std::ifstrea
 int comprobar_params(int argc, std::vector<std::string> const & argumentos,
                      std::ifstream const & inputFile, std::ofstream const & outputFile);
 
+void init_params(std::ifstream & inputFile);
+
 template <typename T>
   requires(std::is_integral_v<T> or std::is_floating_point_v<T>)
 char * as_writable_buffer(T & value);

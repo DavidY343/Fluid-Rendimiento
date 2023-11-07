@@ -3,6 +3,7 @@
 //
 
 #include "progargs.hpp"
+#include "grid.hpp"
 //
 // Created by david on 10/3/23.
 //
@@ -74,15 +75,16 @@ T read_binary_value(std::istream & is) {
   is.read(as_writable_buffer(value), sizeof(value));
   return value;
 }
-
-std::vector<double> calculo_tmñ_malla(std::vector<double> const & max_min, double h) {
+/*
+std::vector<double> calculo_tmñ_malla(std::vector<double> const & max_min, std::vector<double> const & max, double h) {
   double const nx_vect = (max_min[0] - max_min[1]) / h;
   double const ny_vect = (max_min[2] - max_min[3]) / h;
   double const nz_vect = (max_min[4] - max_min[5]) / h;
 
   return {nx_vect, ny_vect, nz_vect};
 }
-
+*/
+/*
 std::vector<double> calcular_max_min(std::vector<particula> const & particulas) {
   double max_px = -std::numeric_limits<double>::max();
   double min_px = std::numeric_limits<double>::max();
@@ -107,7 +109,8 @@ std::vector<double> calcular_max_min(std::vector<particula> const & particulas) 
   std::vector const max_min{max_px, min_px, max_py, min_py, max_pz, min_pz};
   return max_min;
 }
-
+*/
+/*
 std::vector<double> calculo_tmñ_bloque_malla(std::vector<double> const & max_min,
                                              std::vector<double> const & n_const) {
   double const sx_vect = (max_min[0] - max_min[1]) / n_const[0];
@@ -116,7 +119,7 @@ std::vector<double> calculo_tmñ_bloque_malla(std::vector<double> const & max_mi
 
   return {sx_vect, sy_vect, sz_vect};
 }
-
+*/
 std::vector<double> longitud_masa(std::ifstream & inputFile) {
   inputFile.seekg(0, std::ios::beg);  // situamos el puntero del archivo en la cabecera
   auto ppm = static_cast<double>(read_binary_value<float>(inputFile));
@@ -124,34 +127,34 @@ std::vector<double> longitud_masa(std::ifstream & inputFile) {
   // Realizamos los cálculos necesarios
   double const m_dat = constantes::p_const / std::pow(ppm, 3.0);
   double const h_dat = constantes::r_const / ppm;
-
+  std::cout<<constantes::r_const<< " "<< ppm << " " <<h_dat;
   return {m_dat, h_dat};
 }
 
-int comprobar_fallos_cabecera(std::vector<particula> const & particulas,
-                              std::ifstream & inputFile) {
-  inputFile.seekg(1, std::ios::beg);  // situamos el puntero del archivo
-  // Obtenemos el número de partículas de la cabecera
-  auto n_particulas_int = read_binary_value<int>(inputFile);
-  size_t const longitud = particulas.size();
-  if (longitud != 0) {
+int comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_particulas_int) {
+  int const longitud = static_cast<int>(particulas.size());
     int const error = -5;
-    if (longitud <= 0) {
-      std::cerr << "Invalid number of particles:" << longitud;
-    } else {
+    if (longitud != n_particulas_int) {
       std::cerr << "Number of particles mismatch. Header:" << n_particulas_int
                 << "Found:" << longitud;
+      return error;
+    }else {
+      return 0;
     }
-    return error;
-  }
-  return 0;
 }
 
 // Con esta funcion creamos el array de partículas, y generamos los datos del archivo de entrada
 std::pair<int, std::vector<particula>> crear_particulas(std::ifstream & inputFile) {
-  inputFile.seekg(2, std::ios::beg);  // nos aseguramos de empezar después de la cabecera
+
+  inputFile.seekg(4, std::ios::beg);  // situamos el puntero del archivo
+  // Obtenemos el número de partículas de la cabecera
+  auto n_particulas_int = read_binary_value<int>(inputFile);
+
+  /*TODO:Ese 12 hay que mirarlo*/
+  inputFile.seekg(12, std::ios::beg);  // nos aseguramos de empezar después de la cabecera
   std::vector<particula> particulas;  // Creamos el vector con las partículas
   int ident = 0;
+
 
   while (!inputFile.eof()) {
     // Leer los datos de una partícula
@@ -170,13 +173,17 @@ std::pair<int, std::vector<particula>> crear_particulas(std::ifstream & inputFil
     particulas.push_back(n_particula);
     ident++;
   }
-  int const error = comprobar_fallos_cabecera(particulas, inputFile);
+  int const error = comprobar_fallos_cabecera(particulas, n_particulas_int);
   if (error < 0) { return std::make_pair(error, std::vector<particula>()); }
   return std::make_pair(0, particulas);
 }
 
-void  init_params(std::ifstream & inputFile)
-{
-  const std::vector<double> cabeceras = longitud_masa(inputFile);
-
+void init_params(std::ifstream & inputFile){
+  longitud_masa(inputFile);
+  std::pair<int, std::vector<particula>> particulas = crear_particulas(inputFile);
+  if (particulas.first == 0 ){
+    grid malla(longitud_masa(inputFile), particulas.second);
+  }
+  /*using namespace std;
+  cout<<"num_particulas: " << n_particulas_int;*/
 }

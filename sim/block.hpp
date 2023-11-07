@@ -5,11 +5,19 @@
 #ifndef ARCOS_BLOCK_H
 #define ARCOS_BLOCK_H
 
+#include "progargs.hpp"
 
 class block {
 public:
     // Constructor
-    block(int sx, int sy, int sz) : sx(sx), sy(sy), sz(sz) { }
+    block(double sx, double sy, double sz, double px, double py, double pz){
+      this->sx = sx;
+      this->sy = sy;
+      this->sz = sz;
+      this->px = px;
+      this->py = py;
+      this->pz = pz;
+    }
 
     // Destructor
     ~block() {
@@ -18,9 +26,12 @@ public:
 
 private:
     /*Tamaño de bloques*/
-    int sx;
-    int sy;
-    int sz;
+    double sx;
+    double sy;
+    double sz;
+    double px;
+    double py;
+    double pz;
 };
 
 
