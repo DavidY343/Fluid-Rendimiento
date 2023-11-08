@@ -127,7 +127,6 @@ std::vector<double> longitud_masa(std::ifstream & inputFile) {
   // Realizamos los cálculos necesarios
   double const m_dat = constantes::p_const / std::pow(ppm, 3.0);
   double const h_dat = constantes::r_const / ppm;
-  std::cout<<constantes::r_const<< " "<< ppm << " " <<h_dat;
   return {m_dat, h_dat};
 }
 
@@ -151,7 +150,7 @@ std::pair<int, std::vector<particula>> crear_particulas(std::ifstream & inputFil
   auto n_particulas_int = read_binary_value<int>(inputFile);
 
   /*TODO:Ese 12 hay que mirarlo*/
-  inputFile.seekg(12, std::ios::beg);  // nos aseguramos de empezar después de la cabecera
+  inputFile.seekg(8, std::ios::beg);  // nos aseguramos de empezar después de la cabecera
   std::vector<particula> particulas;  // Creamos el vector con las partículas
   int ident = 0;
 
@@ -174,16 +173,26 @@ std::pair<int, std::vector<particula>> crear_particulas(std::ifstream & inputFil
     ident++;
   }
   int const error = comprobar_fallos_cabecera(particulas, n_particulas_int);
-  if (error < 0) { return std::make_pair(error, std::vector<particula>()); }
+  if (error < 0 && false) { return std::make_pair(error, std::vector<particula>()); } // este condicional habra q cambiarlo luego
   return std::make_pair(0, particulas);
 }
 
-void init_params(std::ifstream & inputFile){
-  longitud_masa(inputFile);
+void init_params(std::ifstream & inputFile, int max_iteraciones){
+  std::vector<double> vtor =  longitud_masa(inputFile);
   std::pair<int, std::vector<particula>> particulas = crear_particulas(inputFile);
-  if (particulas.first == 0 ){
-    grid malla(longitud_masa(inputFile), particulas.second);
+  if (particulas.first == 0){
+    using namespace std;
+    cout<<"Inizializando malla con m="<<vtor[0]<<" y h="<<vtor[1]<<endl;
+    grid malla(vtor, particulas.second);
+    using namespace std;
+    for(int iteracion = 1; iteracion<=max_iteraciones;iteracion++) {
+      cout << "****************************************************" << endl;
+      cout << "iniciando  iteracion " << iteracion << endl;
+
+      malla.simular();
+
+      cout<< "finalizada iteracion " << iteracion << endl;
+      cout << "----------------------------------------------------" << endl;
+    }
   }
-  /*using namespace std;
-  cout<<"num_particulas: " << n_particulas_int;*/
 }

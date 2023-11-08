@@ -22,6 +22,6 @@ int main(int argc, char ** argv) {
 
   int const error = comprobar_params(argc, argumentos, inputFile, outputFile);
   if (error < 0) { return error; }
-  init_params(inputFile);
-
+  int max_iteraciones = std::stoi(argumentos[0]);
+  init_params(inputFile, max_iteraciones);
 }

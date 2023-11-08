@@ -9,6 +9,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 namespace constantes {
   double const r_const                   = 1.695;
@@ -29,7 +30,12 @@ class particula {
     // Constructor
     particula(int id, double px, double py, double pz, double hvx, double hvy, double hvz,
               double vy, double vx, double vz)
-      : id(id), px(px), py(py), pz(pz), hvx(hvx), hvy(hvy), hvz(hvz), vy(vy), vx(vx), vz(vz) { }
+      : id(id), px(px), py(py), pz(pz), hvx(hvx), hvy(hvy), hvz(hvz), vy(vy), vx(vx), vz(vz) {
+      ax = 0;
+      ay = 0;
+      az = 0;
+      p = 0;
+    }
 
     // Constructor de copia
     particula(particula const & other) = default;
@@ -65,6 +71,9 @@ class particula {
         vy  = other.vy;
         vx  = other.vx;
         vz  = other.vz;
+        ax = other.ax;
+        ay = other.ay;
+        az = other.az;
       }
       return *this;
     }
@@ -75,12 +84,49 @@ class particula {
       return *this;
     }
 
+    void inicializar_densidad_aceleracion(){
+      p = 0;
+      ax = constantes::g_const[0];
+      ay = constantes::g_const[1];
+      az = constantes::g_const[2];
+    }
+
+    void interactuar_densidad(particula part, double h){  //hay q hacerlo sin tener q pasar h como constante, q pereza
+      double distancia_cuadrado = pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2);
+      if(distancia_cuadrado< pow(h, 2)){
+        p += pow(pow(h, 2) - distancia_cuadrado, 3);
+      }
+    }
+
+    void interactuar_aceleracion(particula part, double h, double m){  //hay q hacerlo sin tener q pasar h como constante, q pereza
+      double d = pow(std::max(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2),pow(10,-12)), 0.5);
+      std::vector<double> d_a;
+      d_a.push_back((((px-part.px)*((15*m*pow(h-d, 2)*(p + part.p - constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vx-vx)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
+      d_a.push_back((((py-part.py)*((15*m*pow(h-d, 2)*(p + part.p - constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vy-vy)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
+      d_a.push_back((((pz-part.pz)*((15*m*pow(h-d, 2)*(p + part.p - constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vz-vz)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
+      ax += d_a[0];
+      ay += d_a[1];
+      az += d_a[2];
+      part.ax -= d_a[0];
+      part.ay -= d_a[1];
+      part.az -= d_a[2];
+    }
+
+
+    void transformar_densidad(double h){
+      p = (p + pow(h, 6)) *(315/(64 * M_PI * pow(h, 9)));
+    }
+
     /*Getters*/
     [[nodiscard]] double getpx() const { return px; }
 
     [[nodiscard]] double getpy() const { return py; }
 
     [[nodiscard]] double getpz() const { return pz; }
+
+    [[nodiscard]] double getp() const { return p; }
+
+    [[nodiscard]] double getid() const { return id; }
 
   private:
     int id;
@@ -93,6 +139,10 @@ class particula {
     double vy;
     double vx;
     double vz;
+    double ax;
+    double ay;
+    double az;
+    double p;
 };
 
 // funciones
@@ -102,7 +152,7 @@ int comprobar_archivos(std::vector<std::string> const & argumentos, std::ifstrea
 int comprobar_params(int argc, std::vector<std::string> const & argumentos,
                      std::ifstream const & inputFile, std::ofstream const & outputFile);
 
-void init_params(std::ifstream & inputFile);
+void init_params(std::ifstream & inputFile, int max_iteraciones);
 
 template <typename T>
   requires(std::is_integral_v<T> or std::is_floating_point_v<T>)
