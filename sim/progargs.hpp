@@ -97,14 +97,17 @@ class particula {
       cout<<"particula con id:"<<id<<" en posicion:("<<px<<", "<<py<<", "<<pz<<")"<<endl;
     }
 
-    void interactuar_densidad(particula part, double h){  //hay q hacerlo sin tener q pasar h como constante, q pereza
+    void interactuar_densidad(particula part, double h, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
       double distancia_cuadrado = pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2);
       if(distancia_cuadrado< pow(h, 2)){
         p += pow(pow(h, 2) - distancia_cuadrado, 3);
       }
+      if(sumar_a_ambas_part){
+        part.p += pow(pow(h, 2) - distancia_cuadrado, 3);
+      }
     }
 
-    void interactuar_aceleracion(particula part, double h, double m){  //hay q hacerlo sin tener q pasar h como constante, q pereza
+    void interactuar_aceleracion(particula part, double h, double m, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
       double d = pow(std::max(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2),pow(10,-12)), 0.5);
       std::vector<double> d_a;
       d_a.push_back((((px-part.px)*((15*m*pow(h-d, 2)*(p + part.p - constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vx-vx)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
@@ -113,9 +116,11 @@ class particula {
       ax += d_a[0];
       ay += d_a[1];
       az += d_a[2];
-      part.ax -= d_a[0];
-      part.ay -= d_a[1];
-      part.az -= d_a[2];
+      if(sumar_a_ambas_part) {
+        part.ax -= d_a[0];
+        part.ay -= d_a[1];
+        part.az -= d_a[2];
+      }
     }
 
 

@@ -70,17 +70,8 @@ public:
     }
 
     void simular(){
-      int suma = 0;
-      for(int b=0; b<nx*ny*nz;b++) {
-        suma += bloques[b].particulas.size();
-        for(unsigned long pi=0; pi<bloques[b].particulas.size();pi++){
-          if(bloques[b].particulas[pi].getid() != 0) {
-            //bloques[b].particulas[pi].imprimir_datos();
-          }
-        }
-      }
-      using namespace std;
-      cout<<"Se encontraron "<<suma<<" particulas en la malla"<<endl;
+      //esto lo use para hacer pruebas pero se puede quitar
+      localizar_particulas();
 
       //4.3.1
       reposicionar_particulas();
@@ -88,6 +79,15 @@ public:
       //4.3.2
       calcular_aceleraciones();
 
+    }
+
+    void localizar_particulas(){
+      int suma = 0;
+      for(int b=0; b<nx*ny*nz;b++) {
+      suma += bloques[b].particulas.size();
+      }
+      using namespace std;
+      cout<<"Se encontraron "<<suma<<" particulas en la malla"<<endl;
     }
 
     void reposicionar_particulas(){
@@ -122,6 +122,16 @@ public:
     }
 
     void calcular_aceleraciones(){
+      /* seguimiento de una particula, para hacer pruebas
+      for(int b=0; b<nx*ny*nz;b++) {
+        for(unsigned long pi=0; pi<bloques[b].particulas.size();pi++){
+          if(bloques[b].particulas[pi].getid() == 3787) { //3787 tb sirve para las pruebas
+          bloques[b].particulas[pi].imprimir_datos();
+          }
+        }
+      }
+       */
+
       //inicializar
       for(int b=0; b<nx*ny*nz;b++) {
         for(unsigned long p=0; p<bloques[b].particulas.size();p++){
@@ -132,14 +142,38 @@ public:
       //calcular densidades, iteraciones con particulas del mismo bloque
       for(int b=0; b<nx*ny*nz;b++) {
         for(unsigned long pi=0; pi<bloques[b].particulas.size();pi++){
-          for(unsigned long pj=0; pj<bloques[b].particulas.size();pj++) //reducir las iteraciones de este bucle
-            if(pi>pj) {
-              bloques[b].particulas[pi].interactuar_densidad(bloques[b].particulas[pj], h); //esto no aplica a pj la interaccion
+          for(unsigned long pj=0; pj<bloques[b].particulas.size();pj++) { // reducir las iteraciones de este bucle
+            if (pi > pj) {
+              bloques[b].particulas[pi].interactuar_densidad(
+                  bloques[b].particulas[pj], h, true);
             }
+          }
         }
       }
-      //bloques contiguos
 
+      //bloques contiguos
+      for(int b=0; b<nx*ny*nz;b++) {
+        for(unsigned long pi=0; pi<bloques[b].particulas.size();pi++){
+          std::vector<int> bloques_contiguos = obtener_contiguos(b);
+          for(unsigned long b2=0; b2<bloques_contiguos.size();b2++) {
+            for (unsigned long pj = 0; pj < bloques[b2].particulas.size();
+                 pj++) {
+              bloques[b].particulas[pi].interactuar_densidad(
+                  bloques[b2].particulas[pj], h, false);
+            }
+          }
+        }
+      }
+
+      /* seguimiento de una particula, para hacer pruebas
+      for(int b=0; b<nx*ny*nz;b++) {
+        for(unsigned long pi=0; pi<bloques[b].particulas.size();pi++){
+          if(bloques[b].particulas[pi].getid() == 3787) { //3787 tb sirve para las pruebas
+          bloques[b].particulas[pi].imprimir_datos();
+          }
+        }
+      }
+       */
 
       //transformar densidades
       for(int b=0; b<nx*ny*nz;b++) {
@@ -151,12 +185,53 @@ public:
       //calcular aceleraciones, iteraciones con particulas del mismo bloque
       for(int b=0; b<nx*ny*nz;b++) {
         for(unsigned long pi=0; pi<bloques[b].particulas.size();pi++){
-          for(unsigned long pj=0; pj<bloques[b].particulas.size();pj++) //reducir las iteraciones de este bucle
-            if(pi>pj) {
-              bloques[b].particulas[pi].interactuar_aceleracion(bloques[b].particulas[pj], h, m); //esto no aplica a pj la interaccion
+          for(unsigned long pj=0; pj<bloques[b].particulas.size();pj++) { // reducir las iteraciones de este bucle
+            if (pi > pj) {
+              bloques[b].particulas[pi].interactuar_aceleracion(
+                  bloques[b].particulas[pj], h, m, true);
             }
+          }
         }
       }
+
+      //bloques contiguos
+      for(int b=0; b<nx*ny*nz;b++) {
+        for(unsigned long pi=0; pi<bloques[b].particulas.size();pi++){
+          std::vector<int> bloques_contiguos = obtener_contiguos(b);
+          for(unsigned long b2=0; b2<bloques_contiguos.size();b2++) {
+            for (unsigned long pj = 0; pj < bloques[b2].particulas.size(); pj++) {
+              bloques[b].particulas[pi].interactuar_aceleracion(
+                  bloques[b2].particulas[pj], h, m,false);
+            }
+          }
+        }
+      }
+
+
+
+    }
+
+    [[nodiscard]] std::vector<int> obtener_contiguos(int n) const{
+      std::vector<int> bloques_contiguos;
+      std::vector<int> coordenadas = obtener_coordenadas(n);
+      for(int i=-1;i<2;++i){
+        for(int j=-1;j<2;++j){
+          for(int k=-1;k<2;++k) {
+            if((!(i==0&&j==0&&k==0))&&(0<=coordenadas[0]+i&&coordenadas[0]+i<nx&&0<=coordenadas[1]+j&&coordenadas[1]+j<ny&&0<=coordenadas[1]+k&&coordenadas[1]+k<nz)){
+              bloques_contiguos.push_back(obtener_indice(coordenadas[0]+i, coordenadas[1]+j, coordenadas[1]+k));
+            }
+          }
+        }
+      }
+      return bloques_contiguos;
+    }
+
+    [[nodiscard]] std::vector<int> obtener_coordenadas(int n) const{
+      std::vector<int> coordenadas;
+      coordenadas.push_back(n/(nz*ny));
+      coordenadas.push_back((n%(nz*ny)/nz));
+      coordenadas.push_back((n%(nz*ny)%nz));
+      return coordenadas;
     }
 
     [[nodiscard]] int obtener_indice(int i, int j, int k) const{
