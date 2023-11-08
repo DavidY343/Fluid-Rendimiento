@@ -165,12 +165,13 @@ public:
         }
       }
 
-      /* seguimiento de una particula, para hacer pruebas
-      for(int b=0; b<nx*ny*nz;b++) {
+      // seguimiento de una particula, para hacer pruebas
+      /*
+      for(int b=0; b<1;b++) {
         for(unsigned long pi=0; pi<bloques[b].particulas.size();pi++){
-          if(bloques[b].particulas[pi].getid() == 3787) { //3787 tb sirve para las pruebas
-          bloques[b].particulas[pi].imprimir_datos();
-          }
+          //if(bloques[b].particulas[pi].getid() == 0) { //3787 tb sirve para las pruebas
+            bloques[b].particulas[pi].imprimir_datos();
+          //}
         }
       }
        */
