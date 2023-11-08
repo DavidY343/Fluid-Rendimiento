@@ -40,9 +40,7 @@ public:
     }
 
     void anhadir_particulas(particula part){
-      if (!p_bloque(part)) {
         particulas.push_back(part);
-      }
     }
 
     [[nodiscard]] bool p_bloque(particula p) const {

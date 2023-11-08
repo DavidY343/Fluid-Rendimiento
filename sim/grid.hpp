@@ -9,43 +9,60 @@
 #include "block.hpp"
 
 class grid {
-  public:
-    // Constructor
-    grid(std::vector<double> cabeceras, std::vector<particula> particulas) {
-      m = cabeceras[0];
-      h = cabeceras[1];
-      nx = static_cast<int>((constantes::bmax_const[0] - constantes::bmin_const[0]) / h);
-      ny = static_cast<int>((constantes::bmax_const[1] - constantes::bmin_const[1]) / h);
-      nz = static_cast<int>((constantes::bmax_const[2] - constantes::bmin_const[2]) / h);
+public:
+  // Constructor
+  grid(std::vector<double> cabeceras, std::vector<particula> particulas) {
+    m = cabeceras[0];
+    h = cabeceras[1];
+    nx = static_cast<int>(
+        (constantes::bmax_const[0] - constantes::bmin_const[0]) / h);
+    ny = static_cast<int>(
+        (constantes::bmax_const[1] - constantes::bmin_const[1]) / h);
+    nz = static_cast<int>(
+        (constantes::bmax_const[2] - constantes::bmin_const[2]) / h);
 
-      using namespace std;
+    using namespace std;
 
-      sx = (constantes::bmax_const[0] - constantes::bmin_const[0]) / nx;
-      sy = (constantes::bmax_const[1] - constantes::bmin_const[1]) / ny;
-      sz = (constantes::bmax_const[2] - constantes::bmin_const[2]) / nz;
-      for (int i = 0; i < nx; i++) {
-        for (int j = 0; j < ny; j++) {
-          for (int k = 0; k < nz; k++) {
-            //cout<<"creando bloque"<<i<<j<<k<<" con indice:"<<obtener_indice(i,j,k)<<" pz="<<constantes::bmin_const[2] + k*sz<<endl;
-            bloques.emplace_back(constantes::bmin_const[0] + i*sx,constantes::bmin_const[1] + j*sy, constantes::bmin_const[2] + k*sz, sx, sy, sz);
-            if(obtener_indice(i,j,k) >= 23){
-            }
-          }
+    sx = (constantes::bmax_const[0] - constantes::bmin_const[0]) / nx;
+    sy = (constantes::bmax_const[1] - constantes::bmin_const[1]) / ny;
+    sz = (constantes::bmax_const[2] - constantes::bmin_const[2]) / nz;
+    for (int i = 0; i < nx; i++) {
+      for (int j = 0; j < ny; j++) {
+        for (int k = 0; k < nz; k++) {
+          // cout<<"creando bloque"<<i<<j<<k<<" con indice:"<<obtener_indice(i,j,k)<<" pz="<<constantes::bmin_const[2] + k*sz<<endl;
+          bloques.emplace_back(constantes::bmin_const[0] + i * sx,
+                               constantes::bmin_const[1] + j * sy,
+                               constantes::bmin_const[2] + k * sz, sx, sy, sz);
         }
       }
-
-      /* este bucle no se puede dejar asi, pq luego se recorren todos los
-      bloques para ver si las particulas estan bien colocadas
-      tb hay q ver como gestionar las particulas con coordenadas fuera de la malla */
-      for(int i = 0; i<4800;i++){
-        //cout<<"creando particula: ("<<particulas[i].getpx()<<","<<particulas[i].getpy()<<","<<particulas[i].getpz()<<")"<<endl;
-        // descarta todas las particulas q estan  fuera de la malla (igual luego lo quitamos)
-        if(constantes::bmin_const[0]<=particulas[i].getpx()&&particulas[i].getpx()<constantes::bmax_const[0]&&constantes::bmin_const[1]<=particulas[i].getpy()&&particulas[i].getpy()<constantes::bmax_const[1]&&constantes::bmin_const[2]<=particulas[i].getpz()&&particulas[i].getpz()<constantes::bmax_const[2]) {
-          recolocar_particula(particulas[i]);
-        }
-      }
-      cout<<"Se inicializo malla con caracteristicas:\n  nx="<<nx<<"  ny="<<ny<<"  nz="<<nz<<"\n  sx="<<sx<<"  sy="<<sy<<"  sz="<<sz<<endl;
     }
+
+    /* este bucle no se puede dejar asi, pq luego se recorren todos los
+    bloques para ver si las particulas estan bien colocadas
+    tb hay q ver como gestionar las particulas con coordenadas fuera de la malla
+  */
+    for (int i = 0; i < 4800; i++) {
+      /*
+      cout << "creando particula: (" << particulas[i].getpx() << ","
+           << particulas[i].getpy() << "," << particulas[i].getpz()
+           << ") id=" << particulas[i].getid() << endl;
+           */
+      // descarta todas las particulas q estan  fuera de la malla (igual luego lo quitamos)
+      // if(constantes::bmin_const[0]<=particulas[i].getpx()&&particulas[i].getpx()<constantes::bmax_const[0]&&constantes::bmin_const[1]<=particulas[i].getpy()&&particulas[i].getpy()<constantes::bmax_const[1]&&constantes::bmin_const[2]<=particulas[i].getpz()&&particulas[i].getpz()<constantes::bmax_const[2]) {
+      recolocar_particula(particulas[i]);
+      //}
+    }
+    cout << "Se inicializo malla con caracteristicas:\n  nx=" << nx
+         << "  ny=" << ny << "  nz=" << nz << "\n  sx=" << sx << "  sy=" << sy
+         << "  sz=" << sz << endl;
+
+    int suma = 0;
+    for (int b = 0; b < nx * ny * nz; b++) {
+      suma += bloques[b].particulas.size();
+      //cout<<"bloque:"<<b<<"  con:"<<bloques[b].particulas.size()<<endl;
+    }
+    cout << "Se encontraron " << suma << " particulas en la malla" << endl;
+  }
 
     // Destructor
     ~grid() {
@@ -53,6 +70,18 @@ class grid {
     }
 
     void simular(){
+      int suma = 0;
+      for(int b=0; b<nx*ny*nz;b++) {
+        suma += bloques[b].particulas.size();
+        for(unsigned long pi=0; pi<bloques[b].particulas.size();pi++){
+          if(bloques[b].particulas[pi].getid() != 0) {
+            //bloques[b].particulas[pi].imprimir_datos();
+          }
+        }
+      }
+      using namespace std;
+      cout<<"Se encontraron "<<suma<<" particulas en la malla"<<endl;
+
       //4.3.1
       reposicionar_particulas();
 
@@ -63,7 +92,7 @@ class grid {
 
     void reposicionar_particulas(){
       using namespace std;
-      cout<<"calculando particulas a reposicionar"<<endl;
+      cout<<"calculando particulas a reposicionar..."<<endl;
       std::vector<particula> particulas_a_reposicionar;
       for(int b=0; b<nx*ny*nz;b++) {
         std::vector<particula> n_part = bloques[b].devolver_particulas();
@@ -84,7 +113,9 @@ class grid {
       int j = static_cast<int>((part.getpy()-constantes::bmin_const[1])/sy);
       int k = static_cast<int>((part.getpz()-constantes::bmin_const[2])/sz);
       int b = obtener_indice(i, j, k);
+      //cout<<i<<","<<j<<","<<k<<","<<b<<"  particula id="<<part.getid()<<endl<<" itam:"<<bloques[b].particulas.size();
       bloques[b].anhadir_particulas(part);
+      //cout<<"ntam:"<<bloques[b].particulas.size()<<endl;
       //cout<<"particula: ("<<part.getpx()<<","<<part.getpy()<<","<<part.getpz()<<")";
       //cout<<" en bloque:"<<i<<","<<j<<","<<k<<" "<<b<<endl;
       //cout<<bloques[b].getpz()<<endl;

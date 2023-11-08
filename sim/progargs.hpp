@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <iostream>
 
 namespace constantes {
   double const r_const                   = 1.695;
@@ -89,6 +90,11 @@ class particula {
       ax = constantes::g_const[0];
       ay = constantes::g_const[1];
       az = constantes::g_const[2];
+    }
+
+    void imprimir_datos(){
+      using namespace std;
+      cout<<"particula con id:"<<id<<" en posicion:("<<px<<", "<<py<<", "<<pz<<")"<<endl;
     }
 
     void interactuar_densidad(particula part, double h){  //hay q hacerlo sin tener q pasar h como constante, q pereza
