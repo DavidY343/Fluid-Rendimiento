@@ -196,3 +196,98 @@ void init_params(std::ifstream & inputFile, int max_iteraciones){
     }
   }
 }
+
+void particula::colisionLimiteEjeX(double sx, int nx) {
+    double const min_value = 0.0000000001;
+    int cx = particula::calculoCx(sx, nx);
+    if (cx == 0){
+        double difLimX = constantes::dp_const - (getpx() - constantes::bmin_const[0]);
+        if (difLimX > min_value){
+             setax (getax() + (constantes::ps_const * constantes::t_const - constantes::dv_const * getvx()));
+        }
+    }else if(cx == nx - 1){
+        double difLimX = constantes::dp_const - (constantes::bmax_const[0] - getpx());
+        if (difLimX > min_value){
+            setax(getax() - (constantes::ps_const * difLimX + constantes::dv_const * getvx()));
+        }
+    }
+}
+
+void particula::colisionLimiteEjeY(double sy, int ny) {
+    double const min_value = 0.0000000001;
+    int cy = particula::calculoCy(sy, ny);
+    if (cy == 0){
+        double difLimY = constantes::dp_const - (getpy() - constantes::bmin_const[1]);
+        if (difLimY > min_value){
+            setay(getay() + (constantes::ps_const * constantes::t_const - constantes::dv_const * getvy()));
+        }
+    }else if(cy == ny - 1){
+        double difLimY = constantes::dp_const - (constantes::bmax_const[1] - getpy());
+        if (difLimY > min_value){
+            setay(getay() - (constantes::ps_const * difLimY + constantes::dv_const * getvy()));
+        }
+    }
+}
+
+void particula::colisionLimiteEjeZ(double sz, int nz) {
+    double const min_value = 0.0000000001;
+    int cz = particula::calculoCz(sz, nz);
+    if (cz == 0){
+        double difLimZ = constantes::dp_const - (getpz() - constantes::bmin_const[2]);
+        if (difLimZ > min_value){
+            setaz(getaz() + (constantes::ps_const * constantes::t_const - constantes::dv_const * getvz()));
+        }
+    }else if(cz == nz - 1){
+        double difLimZ = constantes::dp_const - (constantes::bmax_const[2] - getpz());
+        if (difLimZ > min_value){
+            setaz(getaz() - (constantes::ps_const * difLimZ + constantes::dv_const * getvz()));
+        }
+    }
+}
+
+int particula::calculoCx(double sx, int nx) {
+    double nuevaX = getpx() + gethvx() * constantes::t_const;
+    int cx = static_cast<int>(nuevaX / sx);
+    if (cx < 0) {
+        cx = 0;
+    }else if (cx > nx - 1) {
+        cx = nx - 1;
+    }
+    return cx;
+}
+
+int particula::calculoCy(double sy, int ny) {
+    double nuevaY = getpy() + gethvy() * constantes::t_const;
+    int cy = static_cast<int>(nuevaY / sy);
+    if (cy < 0) {
+        cy = 0;
+    }else if (cy > ny - 1) {
+        cy = ny - 1;
+    }
+    return cy;
+}
+
+int particula::calculoCz(double sz, int nz) {
+    double nuevaZ = getpz() + gethvz() * constantes::t_const;
+    int cz = static_cast<int>(nuevaZ / sz);
+    if (cz < 0) {
+        cz = 0;
+    }else if (cz > nz - 1) {
+        cz = nz - 1;
+    }
+    return cz;
+}
+
+void particula::actualizarMovimiento() {
+    setpx(getpx()+ gethvx() * constantes::t_const + getax() * (constantes::t_const * constantes::t_const));
+    setvx(gethvx() + (getax() * constantes::t_const)/2);
+    sethvx(gethvx() + getax() * constantes::t_const);
+
+    setpy(getpy()+ gethvy() * constantes::t_const + getay() * (constantes::t_const * constantes::t_const));
+    setvy(gethvy() + (getay() * constantes::t_const)/2);
+    sethvy(gethvy() + getay() * constantes::t_const);
+
+    setpz(getpz()+ gethvz() * constantes::t_const + getaz() * (constantes::t_const * constantes::t_const));
+    setvz(gethvz() + (getaz() * constantes::t_const)/2);
+    sethvz(gethvz() + getaz() * constantes::t_const);
+}

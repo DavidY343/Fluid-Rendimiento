@@ -79,6 +79,8 @@ public:
       //4.3.2
       calcular_aceleraciones();
 
+      //4.3.3 y 4.3.4
+      colisiones_particulas();
     }
 
     void localizar_particulas(){
@@ -105,6 +107,7 @@ public:
         recolocar_particula(particulas_a_reposicionar[p]);
       }
       cout<<"particulas reposicionadas"<<endl;
+
     }
 
     void recolocar_particula(particula part){ //esta funcion se puede simplificar
@@ -207,10 +210,11 @@ public:
           }
         }
       }
-
-
-
     }
+
+    void colisiones_particulas();
+
+    void movimiento_particulas();
 
     [[nodiscard]] std::vector<int> obtener_contiguos(int n) const{
       std::vector<int> bloques_contiguos;
@@ -246,6 +250,12 @@ public:
 
     [[nodiscard]] int getnz() const { return nz; }
 
+    [[nodiscard]] double getsx() const { return sx; }
+
+    [[nodiscard]] double getsy() const { return sy; }
+
+    [[nodiscard]] double getsz() const { return sz; }
+
   private:
     double m;
     double h;
@@ -260,4 +270,4 @@ public:
 };
 
 
-#endif//ARCOS_GRID_H
+#endif//ARCOS_GRID_HPP

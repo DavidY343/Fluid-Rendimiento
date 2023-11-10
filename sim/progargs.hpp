@@ -123,10 +123,19 @@ class particula {
       }
     }
 
-
     void transformar_densidad(double h){
       p = (p + pow(h, 6)) *(315/(64 * M_PI * pow(h, 9)));
     }
+
+    void colisionLimiteEjeX(double sx, int nx);
+    void colisionLimiteEjeY(double sy, int ny);
+    void colisionLimiteEjeZ(double sz, int nz);
+
+    int calculoCx(double sx, int nx);
+    int calculoCy(double sy, int ny);
+    int calculoCz(double sz, int nz);
+
+    void actualizarMovimiento();
 
     /*Getters*/
     [[nodiscard]] double getpx() const { return px; }
@@ -139,7 +148,50 @@ class particula {
 
     [[nodiscard]] double getid() const { return id; }
 
-  private:
+    [[nodiscard]] double gethvx() const { return hvx; }
+
+    [[nodiscard]] double gethvy() const { return hvy; }
+
+    [[nodiscard]] double gethvz() const { return hvz; }
+
+    [[nodiscard]] double getvx() const { return vx; }
+
+    [[nodiscard]] double getvy() const { return vy; }
+
+    [[nodiscard]] double getvz() const { return vz; }
+
+    [[nodiscard]] double getax() const { return ax; }
+
+    [[nodiscard]] double getay() const { return ay; }
+
+    [[nodiscard]] double getaz() const { return az; }
+
+    void setpx(double new_ax) { ax = new_ax; }
+
+    void setpy(double new_ay) { ay = new_ay; }
+
+    void setpz(double new_az) { az = new_az; }
+
+    void setvx(double new_ax) { ax = new_ax; }
+
+    void setvy(double new_ay) { ay = new_ay; }
+
+    void setvz(double new_az) { az = new_az; }
+
+    void sethvx(double new_ax) { ax = new_ax; }
+
+    void sethvy(double new_ay) { ay = new_ay; }
+
+    void sethvz(double new_az) { az = new_az; }
+
+    void setax(double new_ax) { ax = new_ax; }
+
+    void setay(double new_ay) { ay = new_ay; }
+
+    void setaz(double new_az) { az = new_az; }
+
+
+private:
     int id;
     double px;
     double py;
