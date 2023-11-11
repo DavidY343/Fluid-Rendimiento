@@ -78,50 +78,6 @@ T read_binary_value(std::istream & is) {
   return value;
 }
 
-/*
-std::vector<double> calculo_tmñ_malla(std::vector<double> const & max_min, std::vector<double> const
-& max, double h) { double const nx_vect = (max_min[0] - max_min[1]) / h; double const ny_vect =
-(max_min[2] - max_min[3]) / h; double const nz_vect = (max_min[4] - max_min[5]) / h;
-
-  return {nx_vect, ny_vect, nz_vect};
-}
-*/
-/*
-std::vector<double> calcular_max_min(std::vector<particula> const & particulas) {
-  double max_px = -std::numeric_limits<double>::max();
-  double min_px = std::numeric_limits<double>::max();
-  double max_py = -std::numeric_limits<double>::max();
-  double min_py = std::numeric_limits<double>::max();
-  double max_pz = -std::numeric_limits<double>::max();
-  double min_pz = std::numeric_limits<double>::max();
-
-  for (particula const & n_particula : particulas) {
-    double const px_dat = n_particula.getpx();
-    double const py_dat = n_particula.getpy();
-    double const pz_dat = n_particula.getpz();
-
-    max_px = std::max(max_px, px_dat);
-    min_px = std::min(min_px, px_dat);
-    max_py = std::max(max_py, py_dat);
-    min_py = std::min(min_py, py_dat);
-    max_pz = std::max(max_pz, pz_dat);
-    min_pz = std::min(min_pz, pz_dat);
-  }
-
-  std::vector const max_min{max_px, min_px, max_py, min_py, max_pz, min_pz};
-  return max_min;
-}
-*/
-/*
-std::vector<double> calculo_tmñ_bloque_malla(std::vector<double> const & max_min,
-                                             std::vector<double> const & n_const) {
-  double const sx_vect = (max_min[0] - max_min[1]) / n_const[0];
-  double const sy_vect = (max_min[2] - max_min[3]) / n_const[1];
-  double const sz_vect = (max_min[4] - max_min[5]) / n_const[2];
-
-  return {sx_vect, sy_vect, sz_vect};
-}
-*/
 std::vector<double> longitud_masa(std::ifstream const & inputFile) {
   auto ppm = static_cast<double>(
       read_binary_value<float>((std::istream &) inputFile));  // necesito tener en ppm
@@ -137,7 +93,7 @@ int comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_p
   int const error    = -5;
   if (longitud != n_particulas_int) {
     std::cerr << "Number of particles mismatch. Header:" << n_particulas_int
-              << "Found:" << longitud;
+              << ", Found:" << longitud << ".";
     exit(error);
   } else {
     return 0;
@@ -167,7 +123,6 @@ std::vector<particula> crear_particulas(std::ifstream const & inputFile) {
                                 vz_dat);
     particulas.push_back(n_particula);
     ident++;
-
   }
   comprobar_fallos_cabecera(particulas, n_particulas_int);
   return particulas;
@@ -181,7 +136,7 @@ void particula::colisionLimiteEjeX(bool lim_inf) {
       setax(getax() +
             (constantes::ps_const * constantes::t_const - constantes::dv_const * getvx()));
     }
-  } else{
+  } else {
     double difLimX = constantes::dp_const - (constantes::bmax_const[0] - getpx());
     if (difLimX > min_value) {
       setax(getax() - (constantes::ps_const * difLimX + constantes::dv_const * getvx()));
@@ -197,7 +152,7 @@ void particula::colisionLimiteEjeY(bool lim_inf) {
       setay(getay() +
             (constantes::ps_const * constantes::t_const - constantes::dv_const * getvy()));
     }
-  } else{
+  } else {
     double difLimY = constantes::dp_const - (constantes::bmax_const[1] - getpy());
     if (difLimY > min_value) {
       setay(getay() - (constantes::ps_const * difLimY + constantes::dv_const * getvy()));
@@ -213,35 +168,40 @@ void particula::colisionLimiteEjeZ(bool lim_inf) {
       setaz(getaz() +
             (constantes::ps_const * constantes::t_const - constantes::dv_const * getvz()));
     }
-  } else{
+  } else {
     double difLimZ = constantes::dp_const - (constantes::bmax_const[2] - getpz());
     if (difLimZ > min_value) {
       setaz(getaz() - (constantes::ps_const * difLimZ + constantes::dv_const * getvz()));
     }
   }
 }
+
 void particula::limiteRecintox(bool lim_inf) {
-  const double dx_dat = lim_inf ? (getpx() - constantes::bmin_const[0]) : (constantes::bmax_const[0] - getpx());
+  double const dx_dat =
+      lim_inf ? (getpx() - constantes::bmin_const[0]) : (constantes::bmax_const[0] - getpx());
   if (dx_dat < 0) {
-    px = lim_inf ? (constantes::bmin_const[0] - dx_dat) : (constantes::bmax_const[0] + dx_dat);
-    vx = -vx;
+    px  = lim_inf ? (constantes::bmin_const[0] - dx_dat) : (constantes::bmax_const[0] + dx_dat);
+    vx  = -vx;
     hvx = -hvx;
   }
 }
+
 void particula::limiteRecintoy(bool lim_inf) {
-  const double dy_dat = lim_inf ? (getpy() - constantes::bmin_const[1]) : (constantes::bmax_const[1] - getpy());
+  double const dy_dat =
+      lim_inf ? (getpy() - constantes::bmin_const[1]) : (constantes::bmax_const[1] - getpy());
   if (dy_dat < 0) {
-    py = lim_inf ? (constantes::bmin_const[1] - dy_dat) : (constantes::bmax_const[1] + dy_dat);
-    vy = -vy;
+    py  = lim_inf ? (constantes::bmin_const[1] - dy_dat) : (constantes::bmax_const[1] + dy_dat);
+    vy  = -vy;
     hvy = -hvy;
   }
 }
 
 void particula::limiteRecintoz(bool lim_inf) {
-  const double dz_dat = lim_inf ? (getpz() - constantes::bmin_const[2]) : (constantes::bmax_const[2] - getpz());
+  double const dz_dat =
+      lim_inf ? (getpz() - constantes::bmin_const[2]) : (constantes::bmax_const[2] - getpz());
   if (dz_dat < 0) {
-    pz = lim_inf ? (constantes::bmin_const[2] - dz_dat) : (constantes::bmax_const[2] + dz_dat);
-    vz = -vz;
+    pz  = lim_inf ? (constantes::bmin_const[2] - dz_dat) : (constantes::bmax_const[2] + dz_dat);
+    vz  = -vz;
     hvz = -hvz;
   }
 }
@@ -265,10 +225,4 @@ void particula::actualizarMovimiento() {
 
 // Función para escribir los parámetros generales
 
-
 // Función para escribir los datos de las partículas en el archivo
-
-
-
-
-

@@ -52,15 +52,15 @@ class grid {
         recolocar_particula(particulas[i]);
         //}
       }
-      cout << "Se inicializo malla con caracteristicas:\n  nx=" << nx << "  ny=" << ny
-           << "  nz=" << nz << "\n  sx=" << sx << "  sy=" << sy << "  sz=" << sz << endl;
+      //cout << "Se inicializo malla con caracteristicas:\n  nx=" << nx << "  ny=" << ny
+      //     << "  nz=" << nz << "\n  sx=" << sx << "  sy=" << sy << "  sz=" << sz << endl;
 
       int suma = 0;
       for (int b = 0; b < nx * ny * nz; b++) {
         suma += bloques[b].particulas.size();
         // cout<<"bloque:"<<b<<"  con:"<<bloques[b].particulas.size()<<endl;
       }
-      cout << "Se encontraron " << suma << " particulas en la malla" << endl;
+      //cout << "Se encontraron " << suma << " particulas en la malla" << endl;
     }
 
     // Destructor
@@ -274,4 +274,5 @@ std::tuple<float, float, float, float, float, float, float, float, float>
     convertirDatos(particula const & particula) ;
         void init_simulate(int max_iteraciones, grid & malla);
 grid init_params(std::ifstream const & inputFile);
+void bubbleSort(std::vector<particula> &particles);
 #endif  // ARCOS_GRID_HPP

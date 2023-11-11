@@ -144,7 +144,7 @@ class particula {
 
     [[nodiscard]] double getp() const { return p; }
 
-    [[nodiscard]] double getid() const { return id; }
+    [[nodiscard]] int getid() const { return id; }
 
     [[nodiscard]] double gethvx() const { return hvx; }
 

@@ -6,56 +6,11 @@
 //
 
 #include "grid.hpp"
-
 #include "progargs.hpp"
 #include "progargs.cpp"
 #include <iostream>
 #include <tuple>
-/*
-// Función para colisiones con límites en el eje x
-void interaccionesLimitesEjeX(Particula& particula, int cx, double xmin, double xmax) {
-  if (cx == 0 || cx == nx - 1) {
-    double dx = (cx == 0) ? particula.px - xmin : xmax - particula.px;
-    if (dx < 0) {
-      particula.px = (cx == 0) ? xmin - dx : xmax + dx;
-      particula.vx = -particula.vx;
-      particula.hvx = -particula.hvx;
-    }
-  }
-}
 
-// Función para colisiones con límites en el eje y
-void interaccionesLimitesEjeY(Particula& particula, int cy, double ymin, double ymax) {
-  if (cy == 0 || cy == ny - 1) {
-    double dy = (cy == 0) ? particula.py - ymin : ymax - particula.py;
-    if (dy < 0) {
-      particula.py = (cy == 0) ? ymin - dy : ymax + dy;
-      particula.vy = -particula.vy;
-      particula.hvy = -particula.hvy;
-    }
-  }
-}
-
-// Función para colisiones con límites en el eje z
-void interaccionesLimitesEjeZ(Particula& particula, int cz, double zmin, double zmax) {
-  if (cz == 0 || cz == nz - 1) {
-    double dz = (cz == 0) ? particula.pz - zmin : zmax - particula.pz;
-    if (dz < 0) {
-      particula.pz = (cz == 0) ? zmin - dz : zmax + dz;
-      particula.vz = -particula.vz;
-      particula.hvz = -particula.hvz;
-    }
-  }
-}
-
-// Función general que llama a las tres funciones anteriores
-void interaccionesLimitesRecinto(Particula& particula, int cx, int cy, int cz, double xmin, double
-xmax, double ymin, double ymax, double zmin, double zmax) { interaccionesLimitesEjeX(particula, cx,
-xmin, xmax); interaccionesLimitesEjeY(particula, cy, ymin, ymax);
-  interaccionesLimitesEjeZ(particula, cz, zmin, zmax);
-}
-
-*/
 void grid::colisiones_particulas() {
   std::vector<int> coordenadas;
   for (int i = 0; i < getnx() * getny() * getnz(); i++) {
@@ -95,16 +50,26 @@ void grid::bucle_colisiones(int num_bloque, bool lim_inf, int dimension) {
 }
 
 grid init_params(std::ifstream const & inputFile) {
-  std::vector<double> vtor                = longitud_masa(inputFile);
+  auto ppm = static_cast<double>(
+      read_binary_value<float>((std::istream &) inputFile));
+  double const m_dat = constantes::p_const / std::pow(ppm, 3.0);
+  double const h_dat = constantes::r_const / ppm;
+  std::vector<double> vtor                = {m_dat, h_dat};
   std::vector<particula> const particulas = crear_particulas(inputFile);
   using namespace std;
-  cout << "Inizializando malla con m=" << vtor[0] << " y h=" << vtor[1] << "\n";
   grid const malla(vtor, particulas);
+  cout << "Number of particles: " << particulas.size() << "\n";
+  cout << "Particles per meter: " << ppm << "\n";
+  cout << "Smoothing length: " << vtor[1] << "\n";
+  cout << "Particle mass: " << vtor[0] << "\n";
   return malla;
 }
 
 void init_simulate(int const max_iteraciones, grid & malla) {
   using namespace std;
+  cout << "Grid size: " << malla.getnx() << " x " << malla.getny()  << " x " << malla.getnz() << "\n";
+  cout << "Number of blocks: " << malla.getnx() * malla.getny() * malla.getnz() << "\n";
+  cout << "Block size: " << malla.getsx() << " x " << malla.getsy()  << " x " << malla.getsz() << "\n";
   for (int iteracion = 1; iteracion <= max_iteraciones; iteracion++) {
     cout << "****************************************************" << endl;
     cout << "iniciando  iteracion " << iteracion << endl;
@@ -152,6 +117,67 @@ void escribir_datos_particulas(std::ofstream & outputFile, particula const & par
   outputFile.write(as_buffer(vz_dat), sizeof(vz_dat));
 }
 
+/*
+void grid::almacenar_resultados(std::ofstream & outputFile, std::ifstream const & inputFile) {
+  // Escribir los parámetros generales
+  escribir_parametros_generales(outputFile, inputFile);
+
+
+  for (int i = 0; i < getnx() * getny() * getnz(); i++) {
+    for (auto & particula : bloques[i].particulas) {
+        escribir_datos_particulas(outputFile, particula);
+    }
+  }
+}*/
+
+void merge(std::vector<particula>& arr, size_t l, size_t m, size_t r) {
+  size_t n1 = m - l + 1;
+  size_t n2 = r - m;
+
+  // Crear vectores temporales
+  std::vector<particula> L(arr.begin() + l, arr.begin() + l + n1);
+  std::vector<particula> R(arr.begin() + m + 1, arr.begin() + m + 1 + n2);
+
+  // Índices iniciales de los subvectores
+  size_t i = 0, j = 0, k = l;
+
+  // Combinar los subvectores de nuevo en arr
+  while (i < n1 && j < n2) {
+    if (L[i].getid() <= R[j].getid()) {
+        arr[k++] = L[i++];
+    } else {
+        arr[k++] = R[j++];
+    }
+  }
+
+  // Copiar los elementos restantes de L (si los hay)
+  while (i < n1) {
+    arr[k++] = L[i++];
+  }
+
+  // Copiar los elementos restantes de R (si los hay)
+  while (j < n2) {
+    arr[k++] = R[j++];
+  }
+}
+
+// Función principal de merge sort
+void mergeSort(std::vector<particula>& arr, size_t l, size_t r) {
+  if (l < r) {
+    // Encuentra el punto medio
+    size_t m = l + (r - l) / 2;
+
+    // Ordena la primera y la segunda mitad
+    mergeSort(arr, l, m);
+    mergeSort(arr, m + 1, r);
+
+    // Combina las mitades ordenadas
+    merge(arr, l, m, r);
+  }
+}
+bool compareByParticleId(const particula &a, const particula &b) {
+  return a.getid() < b.getid();
+}
 
 void grid::almacenar_resultados(std::ofstream & outputFile, std::ifstream const & inputFile) {
   // Escribir los parámetros generales
@@ -164,4 +190,26 @@ void grid::almacenar_resultados(std::ofstream & outputFile, std::ifstream const 
         escribir_datos_particulas(outputFile, particula);
     }
   }
+}/*
+void grid::almacenar_resultados(std::ofstream & outputFile, std::ifstream const & inputFile) {
+  // Escribir los parámetros generales
+  escribir_parametros_generales(outputFile, inputFile);
+
+  // Escribir los datos de las partículas
+  for (int i = 0; i < getnx() * getny() * getnz(); i++) {
+    // Ordenar las partículas en el bloque actual
+    size_t n = bloques[i].particulas.size();
+    for (size_t j = 0; j < n - 1; ++j) {
+        for (size_t k = 0; k < n - j - 1; ++k) {
+          if (bloques[i].particulas[k].getid() > bloques[i].particulas[k + 1].getid()) {
+            // Swap only if indices are within bounds
+            if (k + 1 < n) { std::swap(bloques[i].particulas[k], bloques[i].particulas[k + 1]); }
+            }
+        }
+    }
+    for (auto & particula : bloques[i].particulas) {
+        escribir_datos_particulas(outputFile, particula);
+    }
+  }
 }
+*/
