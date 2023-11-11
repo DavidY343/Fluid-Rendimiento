@@ -11,7 +11,6 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
-
 namespace constantes {
   double const r_const                   = 1.695;
   int const p_const                      = 1000;
@@ -215,9 +214,11 @@ int comprobar_archivos(std::vector<std::string> const & argumentos, std::ifstrea
 int comprobar_params(int argc, std::vector<std::string> const & argumentos,
                      std::ifstream const & inputFile, std::ofstream const & outputFile);
 
-void init_params(const std::ifstream & inputFile);
+std::vector<double> longitud_masa(std::ifstream const & inputFile);
+int comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_particulas_int);
+std::vector<particula> crear_particulas(std::ifstream const & inputFile);
 
-template <typename T>
+    template <typename T>
   requires(std::is_integral_v<T> or std::is_floating_point_v<T>)
 char * as_writable_buffer(T & value);
 
@@ -230,6 +231,6 @@ template <typename T>
 T read_binary_value(std::istream & is);
 
 void escribir_parametros_generales(std::ofstream & outputFile, int num_particulas);
-void init_simulate(int max_iteraciones);
+
 
 #endif

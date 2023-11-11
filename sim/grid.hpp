@@ -84,9 +84,9 @@ public:
     }
 
     void localizar_particulas(){
-      int suma = 0;
-      for(int b=0; b<nx*ny*nz;b++) {
-      suma += bloques[b].particulas.size();
+      unsigned long suma = 0;
+      for(int b_dat=0; b_dat<nx*ny*nz;b_dat++) {
+      suma += bloques[b_dat].particulas.size();
       }
       using namespace std;
       cout<<"Se encontraron "<<suma<<" particulas en la malla"<<endl;
@@ -119,7 +119,7 @@ public:
       //cout<<i<<","<<j<<","<<k<<","<<b<<"  particula id="<<part.getid()<<endl<<" itam:"<<bloques[b].particulas.size();
       bloques[b].anhadir_particulas(part);
       //cout<<"ntam:"<<bloques[b].particulas.size()<<endl;
-      //cout<<"particula: ("<<part.getpx()<<","<<part.getpy()<<","<<part.getpz()<<")";
+      //cout<<"particula: ("<<part.getpx()<<","<<part.getpy()<<","<<part.getpz()<<")\n";
       //cout<<" en bloque:"<<i<<","<<j<<","<<k<<" "<<b<<endl;
       //cout<<bloques[b].getpz()<<endl;
     }
@@ -222,7 +222,7 @@ public:
       for(int i=-1;i<2;++i){
         for(int j=-1;j<2;++j){
           for(int k=-1;k<2;++k) {
-            if((!(i==0&&j==0&&k==0))&&(0<=coordenadas[0]+i&&coordenadas[0]+i<nx&&0<=coordenadas[1]+j&&coordenadas[1]+j<ny&&0<=coordenadas[1]+k&&coordenadas[1]+k<nz)){
+            if((i!=0||j!=0||k!=0)&&(0<=coordenadas[0]+i&&coordenadas[0]+i<nx&&0<=coordenadas[1]+j&&coordenadas[1]+j<ny&&0<=coordenadas[1]+k&&coordenadas[1]+k<nz)){
               bloques_contiguos.push_back(obtener_indice(coordenadas[0]+i, coordenadas[1]+j, coordenadas[1]+k));
             }
           }
@@ -268,6 +268,6 @@ public:
     double sz;
     std::vector<block> bloques;
 };
-
-
+void init_simulate(int max_iteraciones, grid & malla);
+grid init_params(const std::ifstream & inputFile);
 #endif//ARCOS_GRID_HPP

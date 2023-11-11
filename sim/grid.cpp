@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include "grid.hpp"
+#include "progargs.hpp"
 /*
 // Función para colisiones con límites en el eje x
 void interaccionesLimitesEjeX(Particula& particula, int cx, double xmin, double xmax) {
@@ -68,5 +69,28 @@ void grid::movimiento_particulas() {
     for (int i = 0; i < grid::getnx()*grid::getny()*grid::getnz(); i++){
         for (int pi = 0; i < static_cast<int>(bloques[i].particulas.size()); pi++) {
         }
+    }
+}
+
+
+grid init_params(std::ifstream const & inputFile) {
+    std::vector<double> vtor                = longitud_masa(inputFile);
+    std::vector<particula> const particulas = crear_particulas(inputFile);
+    using namespace std;
+    cout << "Inizializando malla con m=" << vtor[0] << " y h=" << vtor[1] << "\n";
+    grid const malla(vtor, particulas);
+    return malla;
+}
+
+void init_simulate(int const max_iteraciones, grid & malla) {
+    using namespace std;
+    for (int iteracion = 1; iteracion <= max_iteraciones; iteracion++) {
+        cout << "****************************************************" << endl;
+        cout << "iniciando  iteracion " << iteracion << endl;
+
+        malla.simular();
+
+        cout << "finalizada iteracion " << iteracion << endl;
+        cout << "----------------------------------------------------" << endl;
     }
 }
