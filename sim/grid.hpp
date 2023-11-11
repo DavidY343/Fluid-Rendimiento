@@ -213,7 +213,7 @@ class grid {
 
     void colisiones_particulas();
 
-    void movimiento_particulas();
+    void bucle_colisiones(int num_bloque, bool lim_inf, int dimension);
 
     [[nodiscard]] std::vector<int> obtener_contiguos(int n) const {
       std::vector<int> bloques_contiguos;

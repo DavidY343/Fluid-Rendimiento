@@ -57,21 +57,37 @@ xmin, xmax); interaccionesLimitesEjeY(particula, cy, ymin, ymax);
 
 */
 void grid::colisiones_particulas() {
-  for (int i = 0; i < grid::getnx() * grid::getny() * grid::getnz(); i++) {
-    for (auto & particula : bloques[i].particulas) {
-      particula.colisionLimiteEjeX(getsx(), getnx());
-      particula.colisionLimiteEjeY(getsy(), getny());
-      particula.colisionLimiteEjeZ(getsz(), getnz());
-      // 4.3.4
-      particula.actualizarMovimiento();
-      // 4.3.5
+  std::vector<int> coordenadas;
+  for (int i = 0; i < getnx() * getny() * getnz(); i++) {
+    coordenadas = obtener_coordenadas(i);
+    if (coordenadas[0] == 0 || coordenadas[0] == getnx() - 1) {
+      bucle_colisiones(i, coordenadas[0] == 0, 0);
+    } else if (coordenadas[1] == 0 || coordenadas[1] == getny() - 1) {
+      bucle_colisiones(i, coordenadas[1] == 0, 1);
+    } else if (coordenadas[2] == 0 || coordenadas[2] == getnz() - 1) {
+      bucle_colisiones(i, coordenadas[1] == 0, 2);
     }
   }
 }
 
-void grid::movimiento_particulas() {
-  for (int i = 0; i < grid::getnx() * grid::getny() * grid::getnz(); i++) {
-    for (int pi = 0; i < static_cast<int>(bloques[i].particulas.size()); pi++) { }
+void grid::bucle_colisiones(int num_bloque, bool lim_inf, int dimension) {
+  for (auto & particula : bloques[num_bloque].particulas) {
+      if (dimension == 0) {
+        particula.colisionLimiteEjeX(lim_inf);
+        // 4.3.4
+        particula.actualizarMovimiento();
+        // 4.3.5
+      }else if (dimension == 1) {
+        particula.colisionLimiteEjeY(lim_inf);
+        // 4.3.4
+        particula.actualizarMovimiento();
+        // 4.3.5
+      }else if (dimension == 2) {
+        particula.colisionLimiteEjeZ(lim_inf);
+        // 4.3.4
+        particula.actualizarMovimiento();
+        // 4.3.5
+      }
   }
 }
 

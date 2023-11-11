@@ -126,9 +126,9 @@ class particula {
       p = (p + pow(h, 6)) *(315/(64 * M_PI * pow(h, 9)));
     }
 
-    void colisionLimiteEjeX(double sx, int nx);
-    void colisionLimiteEjeY(double sy, int ny);
-    void colisionLimiteEjeZ(double sz, int nz);
+    void colisionLimiteEjeX(bool lim_inf);
+    void colisionLimiteEjeY(bool lim_inf);
+    void colisionLimiteEjeZ(bool lim_inf);
 
     int calculoCx(double sx, int nx);
     int calculoCy(double sy, int ny);
