@@ -33,11 +33,13 @@ FetchContent_MakeAvailable(GSL)
 set(CMAKE_CXX_CLANG_TIDY clang-tidy -header-filter=.∗)
 # All includes relative to source tree root.
 include_directories (PUBLIC .)
+include_directories(cmake-build-debug/_deps/googletest-src/googletest/include)
 # Process cmake from sim and fluid directories
 add_subdirectory(sim)
 add_subdirectory(fluid)
 # Unit tests and functional tests
-# enable_testing()
-#add_subdirectory("utest")
+
+enable_testing()
+add_subdirectory("utest")
 #add_subdirectory(ftest)
 
