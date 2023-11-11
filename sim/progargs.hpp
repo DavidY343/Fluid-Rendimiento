@@ -215,7 +215,7 @@ int comprobar_archivos(std::vector<std::string> const & argumentos, std::ifstrea
 int comprobar_params(int argc, std::vector<std::string> const & argumentos,
                      std::ifstream const & inputFile, std::ofstream const & outputFile);
 
-void init_params(std::ifstream & inputFile, int max_iteraciones);
+void init_params(const std::ifstream & inputFile);
 
 template <typename T>
   requires(std::is_integral_v<T> or std::is_floating_point_v<T>)
@@ -229,4 +229,7 @@ template <typename T>
   requires(std::is_integral_v<T> or std::is_floating_point_v<T>)
 T read_binary_value(std::istream & is);
 
-#endif  // ARCOS_PROGARGS_H
+void escribir_parametros_generales(std::ofstream & outputFile, int num_particulas);
+void init_simulate(int max_iteraciones);
+
+#endif

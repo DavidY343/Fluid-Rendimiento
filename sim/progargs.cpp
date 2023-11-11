@@ -14,7 +14,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-
+#include <tuple>
 // Funcion que comprueba que los archivos se abrieron correctamente
 int comprobar_archivos(std::vector<std::string> const & argumentos, std::ifstream const & inputFile,
                        std::ofstream const & outputFile) {
@@ -70,9 +70,9 @@ char const * as_buffer(T const & value) {
 
 template <typename T>
   requires(std::is_integral_v<T> or std::is_floating_point_v<T>)
-T read_binary_value(std::istream & is) {
+T read_binary_value(const std::istream & is) {
   T value{};
-  is.read(as_writable_buffer(value), sizeof(value));
+  is.read(const_cast<char*>(as_writable_buffer(value)), sizeof(value));
   return value;
 }
 /*
@@ -120,9 +120,8 @@ std::vector<double> calculo_tmñ_bloque_malla(std::vector<double> const & max_mi
   return {sx_vect, sy_vect, sz_vect};
 }
 */
-std::vector<double> longitud_masa(std::ifstream & inputFile) {
-  inputFile.seekg(0, std::ios::beg);  // situamos el puntero del archivo en la cabecera
-  auto ppm = static_cast<double>(read_binary_value<float>(inputFile));
+std::vector<double> longitud_masa(const std::ifstream & inputFile) {
+  auto ppm = static_cast<double>(read_binary_value<float>(inputFile)); //necesito tener en ppm
 
   // Realizamos los cálculos necesarios
   double const m_dat = constantes::p_const / std::pow(ppm, 3.0);
@@ -143,18 +142,11 @@ int comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_p
 }
 
 // Con esta funcion creamos el array de partículas, y generamos los datos del archivo de entrada
-std::pair<int, std::vector<particula>> crear_particulas(std::ifstream & inputFile) {
-
-  inputFile.seekg(4, std::ios::beg);  // situamos el puntero del archivo
+std::pair<int, std::vector<particula>> crear_particulas(const std::ifstream & inputFile) {
   // Obtenemos el número de partículas de la cabecera
   auto n_particulas_int = read_binary_value<int>(inputFile);
-
-  /*TODO:Ese 12 hay que mirarlo*/
-  inputFile.seekg(8, std::ios::beg);  // nos aseguramos de empezar después de la cabecera
   std::vector<particula> particulas;  // Creamos el vector con las partículas
   int ident = 0;
-
-
   while (!inputFile.eof()) {
     // Leer los datos de una partícula
     int const id_dat = ident;
@@ -167,34 +159,16 @@ std::pair<int, std::vector<particula>> crear_particulas(std::ifstream & inputFil
     auto vx_dat      = static_cast<double>(read_binary_value<float>(inputFile));
     auto vy_dat      = static_cast<double>(read_binary_value<float>(inputFile));
     auto vz_dat      = static_cast<double>(read_binary_value<float>(inputFile));
+    if (inputFile.eof()){
+      break;}
     particula const n_particula(id_dat, px_dat, py_dat, pz_dat, hvx, hvy, hvz, vy_dat, vx_dat,
                                 vz_dat);
     particulas.push_back(n_particula);
     ident++;
   }
   int const error = comprobar_fallos_cabecera(particulas, n_particulas_int);
-  if (error < 0 && false) { return std::make_pair(error, std::vector<particula>()); } // este condicional habra q cambiarlo luego
+  if (error < 0 ) { return std::make_pair(error, std::vector<particula>()); } // este condicional habra q cambiarlo luego
   return std::make_pair(0, particulas);
-}
-
-void init_params(std::ifstream & inputFile, int max_iteraciones){
-  std::vector<double> vtor =  longitud_masa(inputFile);
-  std::pair<int, std::vector<particula>> particulas = crear_particulas(inputFile);
-  if (particulas.first == 0){
-    using namespace std;
-    cout<<"Inizializando malla con m="<<vtor[0]<<" y h="<<vtor[1]<<endl;
-    grid malla(vtor, particulas.second);
-    using namespace std;
-    for(int iteracion = 1; iteracion<=max_iteraciones;iteracion++) {
-      cout << "****************************************************" << endl;
-      cout << "iniciando  iteracion " << iteracion << endl;
-
-      malla.simular();
-
-      cout<< "finalizada iteracion " << iteracion << endl;
-      cout << "----------------------------------------------------" << endl;
-    }
-  }
 }
 
 void particula::colisionLimiteEjeX(double sx, int nx) {
@@ -290,4 +264,74 @@ void particula::actualizarMovimiento() {
     setpz(getpz()+ gethvz() * constantes::t_const + getaz() * (constantes::t_const * constantes::t_const));
     setvz(gethvz() + (getaz() * constantes::t_const)/2);
     sethvz(gethvz() + getaz() * constantes::t_const);
+}
+
+// Función para escribir los parámetros generales
+void escribir_parametros_generales(std::ofstream & outputFile, unsigned long num_particulas) {
+    outputFile.write(as_buffer(num_particulas), sizeof(num_particulas));
+}
+
+// Función para convertir los datos de las partículas de doble a simple precisión
+std::tuple<float, float, float, float, float, float, float, float, float>
+    convertirDatos(particula const& particula) {
+    auto px_dat = static_cast<float>(particula.getpx());
+    auto py_dat = static_cast<float>(particula.getpy());
+    auto pz_dat = static_cast<float>(particula.getpz());
+    auto hvx = static_cast<float>(particula.gethvx());
+    auto hvy = static_cast<float>(particula.gethvy());
+    auto hvz = static_cast<float>(particula.gethvz());
+    auto vx_dat = static_cast<float>(particula.getvx());
+    auto vy_dat = static_cast<float>(particula.getvy());
+    auto vz_dat = static_cast<float>(particula.getvz());
+
+    return std::make_tuple(px_dat, py_dat, pz_dat, hvx, hvy, hvz, vx_dat, vy_dat, vz_dat);
+}
+
+// Función para escribir los datos de las partículas en el archivo
+void escribir_datos_particulas(std::ofstream & outputFile, const std::vector<particula>& particulas) {
+    for (const auto& particula : particulas) {
+        auto [px_dat, py_dat, pz_dat, hvx, hvy, hvz, vx_dat, vy_dat, vz_dat] =
+            convertirDatos(particula);
+
+        outputFile.write(as_buffer(px_dat), sizeof(px_dat));
+        outputFile.write(as_buffer(py_dat), sizeof(py_dat));
+        outputFile.write(as_buffer(pz_dat), sizeof(pz_dat));
+        outputFile.write(as_buffer(hvx), sizeof(hvx));
+        outputFile.write(as_buffer(hvy), sizeof(hvy));
+        outputFile.write(as_buffer(hvz), sizeof(hvz));
+        outputFile.write(as_buffer(vx_dat), sizeof(vx_dat));
+        outputFile.write(as_buffer(vy_dat), sizeof(vy_dat));
+        outputFile.write(as_buffer(vz_dat), sizeof(vz_dat));
+    }
+}
+void almacenar_resultados(std::ofstream & outputFile, const std::vector<particula>& particulas) {
+    // Escribir los parámetros generales
+    escribir_parametros_generales(outputFile, particulas.size());
+
+    // Escribir los datos de las partículas
+    escribir_datos_particulas(outputFile, particulas);
+}
+
+void init_params(const std::ifstream & inputFile) {
+    std::vector<double> vtor                                = longitud_masa(inputFile);
+    std::pair<int, std::vector<particula>> const particulas = crear_particulas(inputFile);
+    if (particulas.first == 0) {
+        using namespace std;
+        cout << "Inizializando malla con m=" << vtor[0] << " y h=" << vtor[1] << "\n";
+        grid malla(vtor, particulas.second);
+    }
+}
+
+void init_simulate(int const max_iteraciones){
+  using namespace std;
+  for(int iteracion = 1; iteracion<=max_iteraciones;iteracion++) {
+          cout << "****************************************************" << endl;
+          cout << "iniciando  iteracion " << iteracion << endl;
+
+          malla.simular();
+
+          cout<< "finalizada iteracion " << iteracion << endl;
+          cout << "----------------------------------------------------" << endl;
+  }
+  almacenar_resultados(outputFile, particulas.second);
 }
