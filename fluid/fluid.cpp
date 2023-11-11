@@ -29,4 +29,6 @@ int main(int argc, char ** argv) {
   int const max_iteraciones = std::stoi(argumentos[0]);
   grid malla = init_params(inputFile);
   init_simulate(max_iteraciones, malla);
+  malla.almacenar_resultados(outputFile, inputFile);
+  return (0);
 }

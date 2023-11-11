@@ -212,7 +212,7 @@ class grid {
     }
 
     void colisiones_particulas();
-
+    void almacenar_resultados(std::ofstream & outputFile, std::ifstream const & inputFile);
     void bucle_colisiones(int num_bloque, bool lim_inf, int dimension);
 
     [[nodiscard]] std::vector<int> obtener_contiguos(int n) const {
@@ -269,6 +269,9 @@ class grid {
     std::vector<block> bloques;
 };
 
-void init_simulate(int max_iteraciones, grid & malla);
+void escribir_datos_particulas(std::ofstream & outputFile, particula const & particula);
+std::tuple<float, float, float, float, float, float, float, float, float>
+    convertirDatos(particula const & particula) ;
+        void init_simulate(int max_iteraciones, grid & malla);
 grid init_params(std::ifstream const & inputFile);
 #endif  // ARCOS_GRID_HPP

@@ -8,9 +8,9 @@
 #include "grid.hpp"
 
 #include "progargs.hpp"
-
+#include "progargs.cpp"
 #include <iostream>
-
+#include <tuple>
 /*
 // Función para colisiones con límites en el eje x
 void interaccionesLimitesEjeX(Particula& particula, int cx, double xmin, double xmax) {
@@ -77,16 +77,19 @@ void grid::bucle_colisiones(int num_bloque, bool lim_inf, int dimension) {
         // 4.3.4
         particula.actualizarMovimiento();
         // 4.3.5
+        particula.limiteRecintox(lim_inf);
       }else if (dimension == 1) {
         particula.colisionLimiteEjeY(lim_inf);
         // 4.3.4
         particula.actualizarMovimiento();
         // 4.3.5
+        particula.limiteRecintoy(lim_inf);
       }else if (dimension == 2) {
         particula.colisionLimiteEjeZ(lim_inf);
         // 4.3.4
         particula.actualizarMovimiento();
         // 4.3.5
+        particula.limiteRecintoz(lim_inf);
       }
   }
 }
@@ -110,5 +113,55 @@ void init_simulate(int const max_iteraciones, grid & malla) {
 
     cout << "finalizada iteracion " << iteracion << endl;
     cout << "----------------------------------------------------" << endl;
+  }
+}
+void escribir_parametros_generales(std::ofstream & outputFile, std::ifstream const & inputFile) {
+  auto ppm = (read_binary_value<float>((std::istream &) inputFile));
+  auto n_particulas_int = read_binary_value<int>((std::istream &) inputFile);
+  outputFile.write(as_buffer(ppm), sizeof(ppm));
+  outputFile.write(as_buffer(n_particulas_int), sizeof(n_particulas_int));
+}
+
+// Función para convertir los datos de las partículas de doble a simple precisión
+std::tuple<float, float, float, float, float, float, float, float, float>
+    convertirDatos(particula const & particula) {
+  auto px_dat = static_cast<float>(particula.getpx());
+  auto py_dat = static_cast<float>(particula.getpy());
+  auto pz_dat = static_cast<float>(particula.getpz());
+  auto hvx    = static_cast<float>(particula.gethvx());
+  auto hvy    = static_cast<float>(particula.gethvy());
+  auto hvz    = static_cast<float>(particula.gethvz());
+  auto vx_dat = static_cast<float>(particula.getvx());
+  auto vy_dat = static_cast<float>(particula.getvy());
+  auto vz_dat = static_cast<float>(particula.getvz());
+
+  return std::make_tuple(px_dat, py_dat, pz_dat, hvx, hvy, hvz, vx_dat, vy_dat, vz_dat);
+}
+
+void escribir_datos_particulas(std::ofstream & outputFile, particula const & particula) {
+  auto [px_dat, py_dat, pz_dat, hvx, hvy, hvz, vx_dat, vy_dat, vz_dat] = convertirDatos(particula);
+
+  outputFile.write(as_buffer(px_dat), sizeof(px_dat));
+  outputFile.write(as_buffer(py_dat), sizeof(py_dat));
+  outputFile.write(as_buffer(pz_dat), sizeof(pz_dat));
+  outputFile.write(as_buffer(hvx), sizeof(hvx));
+  outputFile.write(as_buffer(hvy), sizeof(hvy));
+  outputFile.write(as_buffer(hvz), sizeof(hvz));
+  outputFile.write(as_buffer(vx_dat), sizeof(vx_dat));
+  outputFile.write(as_buffer(vy_dat), sizeof(vy_dat));
+  outputFile.write(as_buffer(vz_dat), sizeof(vz_dat));
+}
+
+
+void grid::almacenar_resultados(std::ofstream & outputFile, std::ifstream const & inputFile) {
+  // Escribir los parámetros generales
+  escribir_parametros_generales(outputFile, inputFile);
+
+  // Escribir los datos de las partículas
+
+  for (int i = 0; i < getnx() * getny() * getnz(); i++) {
+    for (auto & particula : bloques[i].particulas) {
+        escribir_datos_particulas(outputFile, particula);
+    }
   }
 }

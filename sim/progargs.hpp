@@ -129,10 +129,9 @@ class particula {
     void colisionLimiteEjeX(bool lim_inf);
     void colisionLimiteEjeY(bool lim_inf);
     void colisionLimiteEjeZ(bool lim_inf);
-
-    int calculoCx(double sx, int nx);
-    int calculoCy(double sy, int ny);
-    int calculoCz(double sz, int nz);
+    void limiteRecintox(bool lim_inf);
+    void limiteRecintoy(bool lim_inf);
+    void limiteRecintoz(bool lim_inf);
 
     void actualizarMovimiento();
 

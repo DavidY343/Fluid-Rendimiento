@@ -15,7 +15,6 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include <tuple>
 #include <vector>
 
 // Funcion que comprueba que los archivos se abrieron correctamente
@@ -221,6 +220,31 @@ void particula::colisionLimiteEjeZ(bool lim_inf) {
     }
   }
 }
+void particula::limiteRecintox(bool lim_inf) {
+  const double dx_dat = lim_inf ? (getpx() - constantes::bmin_const[0]) : (constantes::bmax_const[0] - getpx());
+  if (dx_dat < 0) {
+    px = lim_inf ? (constantes::bmin_const[0] - dx_dat) : (constantes::bmax_const[0] + dx_dat);
+    vx = -vx;
+    hvx = -hvx;
+  }
+}
+void particula::limiteRecintoy(bool lim_inf) {
+  const double dy_dat = lim_inf ? (getpy() - constantes::bmin_const[1]) : (constantes::bmax_const[1] - getpy());
+  if (dy_dat < 0) {
+    py = lim_inf ? (constantes::bmin_const[1] - dy_dat) : (constantes::bmax_const[1] + dy_dat);
+    vy = -vy;
+    hvy = -hvy;
+  }
+}
+
+void particula::limiteRecintoz(bool lim_inf) {
+  const double dz_dat = lim_inf ? (getpz() - constantes::bmin_const[2]) : (constantes::bmax_const[2] - getpz());
+  if (dz_dat < 0) {
+    pz = lim_inf ? (constantes::bmin_const[2] - dz_dat) : (constantes::bmax_const[2] + dz_dat);
+    vz = -vz;
+    hvz = -hvz;
+  }
+}
 
 void particula::actualizarMovimiento() {
   setpx(getpx() + gethvx() * constantes::t_const +
@@ -240,51 +264,11 @@ void particula::actualizarMovimiento() {
 }
 
 // Función para escribir los parámetros generales
-void escribir_parametros_generales(std::ofstream & outputFile, unsigned long num_particulas) {
-  outputFile.write(as_buffer(num_particulas), sizeof(num_particulas));
-}
 
-// Función para convertir los datos de las partículas de doble a simple precisión
-std::tuple<float, float, float, float, float, float, float, float, float>
-    convertirDatos(particula const & particula) {
-  auto px_dat = static_cast<float>(particula.getpx());
-  auto py_dat = static_cast<float>(particula.getpy());
-  auto pz_dat = static_cast<float>(particula.getpz());
-  auto hvx    = static_cast<float>(particula.gethvx());
-  auto hvy    = static_cast<float>(particula.gethvy());
-  auto hvz    = static_cast<float>(particula.gethvz());
-  auto vx_dat = static_cast<float>(particula.getvx());
-  auto vy_dat = static_cast<float>(particula.getvy());
-  auto vz_dat = static_cast<float>(particula.getvz());
-
-  return std::make_tuple(px_dat, py_dat, pz_dat, hvx, hvy, hvz, vx_dat, vy_dat, vz_dat);
-}
 
 // Función para escribir los datos de las partículas en el archivo
-void escribir_datos_particulas(std::ofstream & outputFile,
-                               std::vector<particula> const & particulas) {
-  for (auto const & particula : particulas) {
-    auto [px_dat, py_dat, pz_dat, hvx, hvy, hvz, vx_dat, vy_dat, vz_dat] =
-        convertirDatos(particula);
 
-    outputFile.write(as_buffer(px_dat), sizeof(px_dat));
-    outputFile.write(as_buffer(py_dat), sizeof(py_dat));
-    outputFile.write(as_buffer(pz_dat), sizeof(pz_dat));
-    outputFile.write(as_buffer(hvx), sizeof(hvx));
-    outputFile.write(as_buffer(hvy), sizeof(hvy));
-    outputFile.write(as_buffer(hvz), sizeof(hvz));
-    outputFile.write(as_buffer(vx_dat), sizeof(vx_dat));
-    outputFile.write(as_buffer(vy_dat), sizeof(vy_dat));
-    outputFile.write(as_buffer(vz_dat), sizeof(vz_dat));
-  }
-}
 
-void almacenar_resultados(std::ofstream & outputFile, std::vector<particula> const & particulas) {
-  // Escribir los parámetros generales
-  escribir_parametros_generales(outputFile, particulas.size());
 
-  // Escribir los datos de las partículas
-  escribir_datos_particulas(outputFile, particulas);
-}
 
 
