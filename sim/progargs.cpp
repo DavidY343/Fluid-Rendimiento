@@ -15,7 +15,6 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include <tuple>
 #include <vector>
 
 // Funcion que comprueba que los archivos se abrieron correctamente
@@ -79,50 +78,6 @@ T read_binary_value(std::istream & is) {
   return value;
 }
 
-/*
-std::vector<double> calculo_tmñ_malla(std::vector<double> const & max_min, std::vector<double> const
-& max, double h) { double const nx_vect = (max_min[0] - max_min[1]) / h; double const ny_vect =
-(max_min[2] - max_min[3]) / h; double const nz_vect = (max_min[4] - max_min[5]) / h;
-
-  return {nx_vect, ny_vect, nz_vect};
-}
-*/
-/*
-std::vector<double> calcular_max_min(std::vector<particula> const & particulas) {
-  double max_px = -std::numeric_limits<double>::max();
-  double min_px = std::numeric_limits<double>::max();
-  double max_py = -std::numeric_limits<double>::max();
-  double min_py = std::numeric_limits<double>::max();
-  double max_pz = -std::numeric_limits<double>::max();
-  double min_pz = std::numeric_limits<double>::max();
-
-  for (particula const & n_particula : particulas) {
-    double const px_dat = n_particula.getpx();
-    double const py_dat = n_particula.getpy();
-    double const pz_dat = n_particula.getpz();
-
-    max_px = std::max(max_px, px_dat);
-    min_px = std::min(min_px, px_dat);
-    max_py = std::max(max_py, py_dat);
-    min_py = std::min(min_py, py_dat);
-    max_pz = std::max(max_pz, pz_dat);
-    min_pz = std::min(min_pz, pz_dat);
-  }
-
-  std::vector const max_min{max_px, min_px, max_py, min_py, max_pz, min_pz};
-  return max_min;
-}
-*/
-/*
-std::vector<double> calculo_tmñ_bloque_malla(std::vector<double> const & max_min,
-                                             std::vector<double> const & n_const) {
-  double const sx_vect = (max_min[0] - max_min[1]) / n_const[0];
-  double const sy_vect = (max_min[2] - max_min[3]) / n_const[1];
-  double const sz_vect = (max_min[4] - max_min[5]) / n_const[2];
-
-  return {sx_vect, sy_vect, sz_vect};
-}
-*/
 std::vector<double> longitud_masa(std::ifstream const & inputFile) {
   auto ppm = static_cast<double>(
       read_binary_value<float>((std::istream &) inputFile));  // necesito tener en ppm
@@ -138,7 +93,7 @@ int comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_p
   int const error    = -5;
   if (longitud != n_particulas_int) {
     std::cerr << "Number of particles mismatch. Header:" << n_particulas_int
-              << "Found:" << longitud;
+              << ", Found:" << longitud << ".";
     exit(error);
   } else {
     return 0;
@@ -168,22 +123,20 @@ std::vector<particula> crear_particulas(std::ifstream const & inputFile) {
                                 vz_dat);
     particulas.push_back(n_particula);
     ident++;
-
   }
   comprobar_fallos_cabecera(particulas, n_particulas_int);
   return particulas;
 }
 
-void particula::colisionLimiteEjeX(double sx, int nx) {
+void particula::colisionLimiteEjeX(bool lim_inf) {
   double const min_value = 0.0000000001;
-  int cx                 = particula::calculoCx(sx, nx);
-  if (cx == 0) {
+  if (lim_inf) {
     double difLimX = constantes::dp_const - (getpx() - constantes::bmin_const[0]);
     if (difLimX > min_value) {
       setax(getax() +
             (constantes::ps_const * constantes::t_const - constantes::dv_const * getvx()));
     }
-  } else if (cx == nx - 1) {
+  } else {
     double difLimX = constantes::dp_const - (constantes::bmax_const[0] - getpx());
     if (difLimX > min_value) {
       setax(getax() - (constantes::ps_const * difLimX + constantes::dv_const * getvx()));
@@ -191,16 +144,15 @@ void particula::colisionLimiteEjeX(double sx, int nx) {
   }
 }
 
-void particula::colisionLimiteEjeY(double sy, int ny) {
+void particula::colisionLimiteEjeY(bool lim_inf) {
   double const min_value = 0.0000000001;
-  int cy                 = particula::calculoCy(sy, ny);
-  if (cy == 0) {
+  if (lim_inf) {
     double difLimY = constantes::dp_const - (getpy() - constantes::bmin_const[1]);
     if (difLimY > min_value) {
       setay(getay() +
             (constantes::ps_const * constantes::t_const - constantes::dv_const * getvy()));
     }
-  } else if (cy == ny - 1) {
+  } else {
     double difLimY = constantes::dp_const - (constantes::bmax_const[1] - getpy());
     if (difLimY > min_value) {
       setay(getay() - (constantes::ps_const * difLimY + constantes::dv_const * getvy()));
@@ -208,16 +160,15 @@ void particula::colisionLimiteEjeY(double sy, int ny) {
   }
 }
 
-void particula::colisionLimiteEjeZ(double sz, int nz) {
+void particula::colisionLimiteEjeZ(bool lim_inf) {
   double const min_value = 0.0000000001;
-  int cz                 = particula::calculoCz(sz, nz);
-  if (cz == 0) {
+  if (lim_inf) {
     double difLimZ = constantes::dp_const - (getpz() - constantes::bmin_const[2]);
     if (difLimZ > min_value) {
       setaz(getaz() +
             (constantes::ps_const * constantes::t_const - constantes::dv_const * getvz()));
     }
-  } else if (cz == nz - 1) {
+  } else {
     double difLimZ = constantes::dp_const - (constantes::bmax_const[2] - getpz());
     if (difLimZ > min_value) {
       setaz(getaz() - (constantes::ps_const * difLimZ + constantes::dv_const * getvz()));
@@ -225,37 +176,34 @@ void particula::colisionLimiteEjeZ(double sz, int nz) {
   }
 }
 
-int particula::calculoCx(double sx, int nx) {
-  double nuevaX = getpx() + gethvx() * constantes::t_const;
-  int cx        = static_cast<int>(nuevaX / sx);
-  if (cx < 0) {
-    cx = 0;
-  } else if (cx > nx - 1) {
-    cx = nx - 1;
+void particula::limiteRecintox(bool lim_inf) {
+  double const dx_dat =
+      lim_inf ? (getpx() - constantes::bmin_const[0]) : (constantes::bmax_const[0] - getpx());
+  if (dx_dat < 0) {
+    px  = lim_inf ? (constantes::bmin_const[0] - dx_dat) : (constantes::bmax_const[0] + dx_dat);
+    vx  = -vx;
+    hvx = -hvx;
   }
-  return cx;
 }
 
-int particula::calculoCy(double sy, int ny) {
-  double nuevaY = getpy() + gethvy() * constantes::t_const;
-  int cy        = static_cast<int>(nuevaY / sy);
-  if (cy < 0) {
-    cy = 0;
-  } else if (cy > ny - 1) {
-    cy = ny - 1;
+void particula::limiteRecintoy(bool lim_inf) {
+  double const dy_dat =
+      lim_inf ? (getpy() - constantes::bmin_const[1]) : (constantes::bmax_const[1] - getpy());
+  if (dy_dat < 0) {
+    py  = lim_inf ? (constantes::bmin_const[1] - dy_dat) : (constantes::bmax_const[1] + dy_dat);
+    vy  = -vy;
+    hvy = -hvy;
   }
-  return cy;
 }
 
-int particula::calculoCz(double sz, int nz) {
-  double nuevaZ = getpz() + gethvz() * constantes::t_const;
-  int cz        = static_cast<int>(nuevaZ / sz);
-  if (cz < 0) {
-    cz = 0;
-  } else if (cz > nz - 1) {
-    cz = nz - 1;
+void particula::limiteRecintoz(bool lim_inf) {
+  double const dz_dat =
+      lim_inf ? (getpz() - constantes::bmin_const[2]) : (constantes::bmax_const[2] - getpz());
+  if (dz_dat < 0) {
+    pz  = lim_inf ? (constantes::bmin_const[2] - dz_dat) : (constantes::bmax_const[2] + dz_dat);
+    vz  = -vz;
+    hvz = -hvz;
   }
-  return cz;
 }
 
 void particula::actualizarMovimiento() {
@@ -276,51 +224,5 @@ void particula::actualizarMovimiento() {
 }
 
 // Función para escribir los parámetros generales
-void escribir_parametros_generales(std::ofstream & outputFile, unsigned long num_particulas) {
-  outputFile.write(as_buffer(num_particulas), sizeof(num_particulas));
-}
-
-// Función para convertir los datos de las partículas de doble a simple precisión
-std::tuple<float, float, float, float, float, float, float, float, float>
-    convertirDatos(particula const & particula) {
-  auto px_dat = static_cast<float>(particula.getpx());
-  auto py_dat = static_cast<float>(particula.getpy());
-  auto pz_dat = static_cast<float>(particula.getpz());
-  auto hvx    = static_cast<float>(particula.gethvx());
-  auto hvy    = static_cast<float>(particula.gethvy());
-  auto hvz    = static_cast<float>(particula.gethvz());
-  auto vx_dat = static_cast<float>(particula.getvx());
-  auto vy_dat = static_cast<float>(particula.getvy());
-  auto vz_dat = static_cast<float>(particula.getvz());
-
-  return std::make_tuple(px_dat, py_dat, pz_dat, hvx, hvy, hvz, vx_dat, vy_dat, vz_dat);
-}
 
 // Función para escribir los datos de las partículas en el archivo
-void escribir_datos_particulas(std::ofstream & outputFile,
-                               std::vector<particula> const & particulas) {
-  for (auto const & particula : particulas) {
-    auto [px_dat, py_dat, pz_dat, hvx, hvy, hvz, vx_dat, vy_dat, vz_dat] =
-        convertirDatos(particula);
-
-    outputFile.write(as_buffer(px_dat), sizeof(px_dat));
-    outputFile.write(as_buffer(py_dat), sizeof(py_dat));
-    outputFile.write(as_buffer(pz_dat), sizeof(pz_dat));
-    outputFile.write(as_buffer(hvx), sizeof(hvx));
-    outputFile.write(as_buffer(hvy), sizeof(hvy));
-    outputFile.write(as_buffer(hvz), sizeof(hvz));
-    outputFile.write(as_buffer(vx_dat), sizeof(vx_dat));
-    outputFile.write(as_buffer(vy_dat), sizeof(vy_dat));
-    outputFile.write(as_buffer(vz_dat), sizeof(vz_dat));
-  }
-}
-
-void almacenar_resultados(std::ofstream & outputFile, std::vector<particula> const & particulas) {
-  // Escribir los parámetros generales
-  escribir_parametros_generales(outputFile, particulas.size());
-
-  // Escribir los datos de las partículas
-  escribir_datos_particulas(outputFile, particulas);
-}
-
-

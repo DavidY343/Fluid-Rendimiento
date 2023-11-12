@@ -126,13 +126,12 @@ class particula {
       p = (p + pow(h, 6)) *(315/(64 * M_PI * pow(h, 9)));
     }
 
-    void colisionLimiteEjeX(double sx, int nx);
-    void colisionLimiteEjeY(double sy, int ny);
-    void colisionLimiteEjeZ(double sz, int nz);
-
-    int calculoCx(double sx, int nx);
-    int calculoCy(double sy, int ny);
-    int calculoCz(double sz, int nz);
+    void colisionLimiteEjeX(bool lim_inf);
+    void colisionLimiteEjeY(bool lim_inf);
+    void colisionLimiteEjeZ(bool lim_inf);
+    void limiteRecintox(bool lim_inf);
+    void limiteRecintoy(bool lim_inf);
+    void limiteRecintoz(bool lim_inf);
 
     void actualizarMovimiento();
 
@@ -145,7 +144,7 @@ class particula {
 
     [[nodiscard]] double getp() const { return p; }
 
-    [[nodiscard]] double getid() const { return id; }
+    [[nodiscard]] int getid() const { return id; }
 
     [[nodiscard]] double gethvx() const { return hvx; }
 
