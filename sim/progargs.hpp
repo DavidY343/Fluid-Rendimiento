@@ -30,12 +30,7 @@ class particula {
     // Constructor
     particula(int id, double px, double py, double pz, double hvx, double hvy, double hvz,
               double vy, double vx, double vz)
-      : id(id), px(px), py(py), pz(pz), hvx(hvx), hvy(hvy), hvz(hvz), vy(vy), vx(vx), vz(vz) {
-      ax = 0;
-      ay = 0;
-      az = 0;
-      p = 0;
-    }
+      : id(id), px(px), py(py), pz(pz), hvx(hvx), hvy(hvy), hvz(hvz), vy(vy), vx(vx), vz(vz) {    }
 
     // Constructor de copia
     particula(particula const & other) = default;
@@ -91,23 +86,23 @@ class particula {
       az = constantes::g_const[2];
     }
 
-    void imprimir_datos(){
+    void imprimir_datos() const{
       using namespace std;
-      cout<<"particula con id:"<<id<<" en posicion:("<<px<<", "<<py<<", "<<pz<<")"<<endl;
+      cout<<"particula con id:"<<id<<" en posicion:("<<px<<", "<<py<<", "<<pz<<")\n";
     }
 
-    void interactuar_densidad(particula part, double h, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
-      double distancia_cuadrado = pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2);
-      if(distancia_cuadrado< pow(h, 2)){
-        p += pow(pow(h, 2) - distancia_cuadrado, 3);
+    void interactuar_densidad(particula &part, double h, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
+      double const distancia_cuadrado = pow(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2), 0.5);
+      if(pow(distancia_cuadrado, 2)< pow(h, 2)){
+        p += pow(pow(h, 2) - pow(distancia_cuadrado, 2), 3);
       }
       if(sumar_a_ambas_part){
-        part.p += pow(pow(h, 2) - distancia_cuadrado, 3);
+        part.p += pow(pow(h, 2) - pow(distancia_cuadrado, 2), 3);
       }
     }
 
     void interactuar_aceleracion(particula part, double h, double m, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
-      double d = pow(std::max(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2),pow(10,-12)), 0.5);
+      double const d = pow(std::max(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2),pow(10,-12)), 0.5);
       std::vector<double> d_a;
       d_a.push_back((((px-part.px)*((15*m*pow(h-d, 2)*(p + part.p - constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vx-vx)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
       d_a.push_back((((py-part.py)*((15*m*pow(h-d, 2)*(p + part.p - constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vy-vy)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
@@ -188,7 +183,6 @@ class particula {
 
     void setaz(double new_az) { az = new_az; }
 
-
 private:
     int id;
     double px;
@@ -200,10 +194,10 @@ private:
     double vy;
     double vx;
     double vz;
-    double ax;
-    double ay;
-    double az;
-    double p;
+    double ax{0};
+    double ay{0};
+    double az{0};
+    double p{0};
 };
 
 // funciones
@@ -230,6 +224,5 @@ template <typename T>
 T read_binary_value(std::istream & is);
 
 void escribir_parametros_generales(std::ofstream & outputFile, int num_particulas);
-
 
 #endif

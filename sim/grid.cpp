@@ -97,13 +97,12 @@ void grid::calcular_densidades() {
     }
   }
 
-  // bloques contiguos
   for (int b = 0; b < nx * ny * nz; b++) {
     for (unsigned long pi = 0; pi < bloques[b].particulas.size(); pi++) {
       std::vector<int> const bloques_contiguos = obtener_contiguos(b);
       for (unsigned long b2 = 0; b2 < bloques_contiguos.size(); b2++) {
-        for (unsigned long pj = 0; pj < bloques[b2].particulas.size(); pj++) {
-          bloques[b].particulas[pi].interactuar_densidad(bloques[b2].particulas[pj], h, false);
+        for (unsigned long pj = 0; pj < bloques[bloques_contiguos[b2]].particulas.size(); pj++) {
+          bloques[b].particulas[pi].interactuar_densidad(bloques[bloques_contiguos[b2]].particulas[pj], h, false);
         }
       }
     }
