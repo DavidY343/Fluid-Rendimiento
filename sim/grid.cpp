@@ -65,19 +65,33 @@ void grid::recolocar_particula(particula part) {  // esta funcion se puede simpl
 
 void grid::calcular_aceleraciones() {
   // inicializar
-  for (int b = 0; b < nx * ny * nz; b++) {
-    for (unsigned long p = 0; p < bloques[b].particulas.size(); p++) {
-      bloques[b].particulas[p].inicializar_densidad_aceleracion();
+  inicializar_densidades();
+
+  // calcular densidades
+  calcular_densidades();
+
+  // transformar densidades
+  transformar_densidades();
+
+  // calcular aceleraciones
+  _calcular_aceleraciones();
+}
+
+void grid::inicializar_densidades(){
+  for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
+    for (auto & particula : bloques[indice_bloque].particulas) {
+      particula.inicializar_densidad_aceleracion();
     }
   }
+}
 
-  // calcular densidades, iteraciones con particulas del mismo bloque
-  for (int b = 0; b < nx * ny * nz; b++) {
-    for (unsigned long pi = 0; pi < bloques[b].particulas.size(); pi++) {
-      for (unsigned long pj = 0; pj < bloques[b].particulas.size();
+void grid::calcular_densidades() {
+  for (int indice_b = 0; indice_b < nx * ny * nz; indice_b++) {
+    for (unsigned long pi = 0; pi < bloques[indice_b].particulas.size(); pi++) {
+      for (unsigned long pj = 0; pj < bloques[indice_b].particulas.size();
            pj++) {  // reducir las iteraciones de este bucle
         if (pi > pj) {
-          bloques[b].particulas[pi].interactuar_densidad(bloques[b].particulas[pj], h, true);
+          bloques[indice_b].particulas[pi].interactuar_densidad(bloques[indice_b].particulas[pj], h, true);
         }
       }
     }
@@ -86,7 +100,7 @@ void grid::calcular_aceleraciones() {
   // bloques contiguos
   for (int b = 0; b < nx * ny * nz; b++) {
     for (unsigned long pi = 0; pi < bloques[b].particulas.size(); pi++) {
-      std::vector<int> bloques_contiguos = obtener_contiguos(b);
+      std::vector<int> const bloques_contiguos = obtener_contiguos(b);
       for (unsigned long b2 = 0; b2 < bloques_contiguos.size(); b2++) {
         for (unsigned long pj = 0; pj < bloques[b2].particulas.size(); pj++) {
           bloques[b].particulas[pi].interactuar_densidad(bloques[b2].particulas[pj], h, false);
@@ -94,32 +108,23 @@ void grid::calcular_aceleraciones() {
       }
     }
   }
+}
 
-  // seguimiento de una particula, para hacer pruebas
-  /*
-  for(int b=0; b<1;b++) {
-    for(unsigned long pi=0; pi<bloques[b].particulas.size();pi++){
-      //if(bloques[b].particulas[pi].getid() == 0) { //3787 tb sirve para las pruebas
-        bloques[b].particulas[pi].imprimir_datos();
-      //}
+void grid::transformar_densidades(){
+  for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
+    for (auto & particula : bloques[indice_bloque].particulas) {
+      particula.transformar_densidad(h);
     }
   }
-   */
+}
 
-  // transformar densidades
-  for (int b = 0; b < nx * ny * nz; b++) {
-    for (unsigned long p = 0; p < bloques[b].particulas.size(); p++) {
-      bloques[b].particulas[p].transformar_densidad(h);
-    }
-  }
-
-  // calcular aceleraciones, iteraciones con particulas del mismo bloque
-  for (int b = 0; b < nx * ny * nz; b++) {
-    for (unsigned long pi = 0; pi < bloques[b].particulas.size(); pi++) {
-      for (unsigned long pj = 0; pj < bloques[b].particulas.size();
+void grid::_calcular_aceleraciones(){
+  for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
+    for (unsigned long pi = 0; pi < bloques[indice_bloque].particulas.size(); pi++) {
+      for (unsigned long pj = 0; pj < bloques[indice_bloque].particulas.size();
            pj++) {  // reducir las iteraciones de este bucle
         if (pi > pj) {
-          bloques[b].particulas[pi].interactuar_aceleracion(bloques[b].particulas[pj], h, m,
+          bloques[indice_bloque].particulas[pi].interactuar_aceleracion(bloques[indice_bloque].particulas[pj], h, m,
                                                             true);
         }
       }
@@ -127,12 +132,12 @@ void grid::calcular_aceleraciones() {
   }
 
   // bloques contiguos
-  for (int b = 0; b < nx * ny * nz; b++) {
-    for (unsigned long pi = 0; pi < bloques[b].particulas.size(); pi++) {
-      std::vector<int> bloques_contiguos = obtener_contiguos(b);
+  for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
+    for (unsigned long pi = 0; pi < bloques[indice_bloque].particulas.size(); pi++) {
+      std::vector<int> const bloques_contiguos = obtener_contiguos(indice_bloque);
       for (unsigned long b2 = 0; b2 < bloques_contiguos.size(); b2++) {
         for (unsigned long pj = 0; pj < bloques[b2].particulas.size(); pj++) {
-          bloques[b].particulas[pi].interactuar_aceleracion(bloques[b2].particulas[pj], h, m,
+          bloques[indice_bloque].particulas[pi].interactuar_aceleracion(bloques[b2].particulas[pj], h, m,
                                                             false);
         }
       }
@@ -200,13 +205,13 @@ void init_simulate(int const max_iteraciones, grid & malla) {
   cout << "Number of blocks: " << malla.getnx() * malla.getny() * malla.getnz() << "\n";
   cout << "Block size: " << malla.getsx() << " x " << malla.getsy()  << " x " << malla.getsz() << "\n";
   for (int iteracion = 1; iteracion <= max_iteraciones; iteracion++) {
-    cout << "****************************************************" << endl;
-    cout << "iniciando  iteracion " << iteracion << endl;
+    cout << "****************************************************\n";
+    cout << "iniciando  iteracion " << iteracion << "\n";
 
     malla.simular();
 
-    cout << "finalizada iteracion " << iteracion << endl;
-    cout << "----------------------------------------------------" << endl;
+    cout << "finalizada iteracion " << iteracion << "\n";
+    cout << "----------------------------------------------------\n";
   }
 }
 void escribir_parametros_generales(std::ofstream & outputFile, std::ifstream const & inputFile) {

@@ -67,19 +67,21 @@ class grid {
     }
 
     void localizar_particulas();
-
     void reposicionar_particulas();
-
     void recolocar_particula(particula part);
 
     void calcular_aceleraciones();
+    void inicializar_densidades();
+    void calcular_densidades();
+    void transformar_densidades();
+    void _calcular_aceleraciones();
 
     void colisiones_particulas();
     void almacenar_resultados(std::ofstream & outputFile, std::ifstream const & inputFile);
     void bucle_colisiones(int num_bloque, bool lim_inf, int dimension);
 
-    int acceder_bloque_part(int b, int p){
-      return bloques[b].particulas[p].getid();
+    particula acceder_bloque_part(int b, int p){
+      return bloques[b].particulas[p];
     }
 
     [[nodiscard]] std::vector<int> obtener_contiguos(int n) const {
