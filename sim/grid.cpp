@@ -11,6 +11,135 @@
 #include <iostream>
 #include <tuple>
 
+void grid::localizar_particulas(){
+  unsigned long suma = 0;
+  for (int b_dat = 0; b_dat < nx * ny * nz; b_dat++) {
+    suma += bloques[b_dat].particulas.size();
+  }
+  using namespace std;
+  cout << "Se encontraron " << suma << " particulas en la malla\n";
+}
+
+void grid::reposicionar_particulas() {
+  using namespace std;
+  cout << "calculando particulas a reposicionar...\n";
+  std::vector<particula> particulas_a_reposicionar;
+  for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
+    std::vector<particula> n_part = bloques[indice_bloque].devolver_particulas();
+    if (!n_part.empty()) {
+      particulas_a_reposicionar.insert(particulas_a_reposicionar.end(), n_part.begin(),
+                                       n_part.end());
+    }
+  }
+  cout << "se reposicionaran: " << particulas_a_reposicionar.size() << " particulas\n";
+  for (int par = static_cast<int>(particulas_a_reposicionar.size()) - 1; 0 <= par; par--) {
+    recolocar_particula(particulas_a_reposicionar[par]);
+  }
+  cout << "particulas reposicionadas\n";
+}
+
+void grid::recolocar_particula(particula part) {  // esta funcion se puede simplificar
+  using namespace std;
+  int indice_i = static_cast<int>((part.getpx() - constantes::bmin_const[0]) / sx);
+  if(indice_i<0){
+    indice_i = 0;
+  } else if (indice_i >= nx){
+    indice_i = nx-1;
+  }
+  int indice_j = static_cast<int>((part.getpy() - constantes::bmin_const[1]) / sy);
+  if(indice_j<0){
+    indice_j = 0;
+  } else if (indice_j >= ny){
+    indice_j = ny-1;
+  }
+  int indice_k = static_cast<int>((part.getpz() - constantes::bmin_const[2]) / sz);
+  if(indice_k<0){
+    indice_k = 0;
+  } else if (indice_k >= nz){
+    indice_k = nz-1;
+  }
+  int const indice_bloque = obtener_indice(indice_i, indice_j, indice_k);
+  //cout<<indice_i<<","<<indice_j<<","<<indice_k<<","<<indice_bloque<<"  particula id="<<part.getid()<<endl;
+  bloques[indice_bloque].anhadir_particulas(part);
+}
+
+void grid::calcular_aceleraciones() {
+  // inicializar
+  for (int b = 0; b < nx * ny * nz; b++) {
+    for (unsigned long p = 0; p < bloques[b].particulas.size(); p++) {
+      bloques[b].particulas[p].inicializar_densidad_aceleracion();
+    }
+  }
+
+  // calcular densidades, iteraciones con particulas del mismo bloque
+  for (int b = 0; b < nx * ny * nz; b++) {
+    for (unsigned long pi = 0; pi < bloques[b].particulas.size(); pi++) {
+      for (unsigned long pj = 0; pj < bloques[b].particulas.size();
+           pj++) {  // reducir las iteraciones de este bucle
+        if (pi > pj) {
+          bloques[b].particulas[pi].interactuar_densidad(bloques[b].particulas[pj], h, true);
+        }
+      }
+    }
+  }
+
+  // bloques contiguos
+  for (int b = 0; b < nx * ny * nz; b++) {
+    for (unsigned long pi = 0; pi < bloques[b].particulas.size(); pi++) {
+      std::vector<int> bloques_contiguos = obtener_contiguos(b);
+      for (unsigned long b2 = 0; b2 < bloques_contiguos.size(); b2++) {
+        for (unsigned long pj = 0; pj < bloques[b2].particulas.size(); pj++) {
+          bloques[b].particulas[pi].interactuar_densidad(bloques[b2].particulas[pj], h, false);
+        }
+      }
+    }
+  }
+
+  // seguimiento de una particula, para hacer pruebas
+  /*
+  for(int b=0; b<1;b++) {
+    for(unsigned long pi=0; pi<bloques[b].particulas.size();pi++){
+      //if(bloques[b].particulas[pi].getid() == 0) { //3787 tb sirve para las pruebas
+        bloques[b].particulas[pi].imprimir_datos();
+      //}
+    }
+  }
+   */
+
+  // transformar densidades
+  for (int b = 0; b < nx * ny * nz; b++) {
+    for (unsigned long p = 0; p < bloques[b].particulas.size(); p++) {
+      bloques[b].particulas[p].transformar_densidad(h);
+    }
+  }
+
+  // calcular aceleraciones, iteraciones con particulas del mismo bloque
+  for (int b = 0; b < nx * ny * nz; b++) {
+    for (unsigned long pi = 0; pi < bloques[b].particulas.size(); pi++) {
+      for (unsigned long pj = 0; pj < bloques[b].particulas.size();
+           pj++) {  // reducir las iteraciones de este bucle
+        if (pi > pj) {
+          bloques[b].particulas[pi].interactuar_aceleracion(bloques[b].particulas[pj], h, m,
+                                                            true);
+        }
+      }
+    }
+  }
+
+  // bloques contiguos
+  for (int b = 0; b < nx * ny * nz; b++) {
+    for (unsigned long pi = 0; pi < bloques[b].particulas.size(); pi++) {
+      std::vector<int> bloques_contiguos = obtener_contiguos(b);
+      for (unsigned long b2 = 0; b2 < bloques_contiguos.size(); b2++) {
+        for (unsigned long pj = 0; pj < bloques[b2].particulas.size(); pj++) {
+          bloques[b].particulas[pi].interactuar_aceleracion(bloques[b2].particulas[pj], h, m,
+                                                            false);
+        }
+      }
+    }
+  }
+}
+
 void grid::colisiones_particulas() {
   std::vector<int> coordenadas;
   for (int i = 0; i < getnx() * getny() * getnz(); i++) {
