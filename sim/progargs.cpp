@@ -78,16 +78,6 @@ T read_binary_value(std::istream & is) {
   return value;
 }
 
-std::vector<double> longitud_masa(std::ifstream const & inputFile) {
-  auto ppm = static_cast<double>(
-      read_binary_value<float>((std::istream &) inputFile));  // necesito tener en ppm
-
-  // Realizamos los cálculos necesarios
-  double const m_dat = constantes::p_const / std::pow(ppm, 3.0);
-  double const h_dat = constantes::r_const / ppm;
-  return {m_dat, h_dat};
-}
-
 int comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_particulas_int) {
   int const longitud = static_cast<int>(particulas.size());
   int const error    = -5;
@@ -131,13 +121,13 @@ std::vector<particula> crear_particulas(std::ifstream const & inputFile) {
 void particula::colisionLimiteEjeX(bool lim_inf) {
   double const min_value = 0.0000000001;
   if (lim_inf) {
-    double difLimX = constantes::dp_const - (getpx() - constantes::bmin_const[0]);
+    double const difLimX = constantes::dp_const - (getpx() - constantes::bmin_const[0]);
     if (difLimX > min_value) {
       setax(getax() +
             (constantes::ps_const * constantes::t_const - constantes::dv_const * getvx()));
     }
   } else {
-    double difLimX = constantes::dp_const - (constantes::bmax_const[0] - getpx());
+    double const difLimX = constantes::dp_const - (constantes::bmax_const[0] - getpx());
     if (difLimX > min_value) {
       setax(getax() - (constantes::ps_const * difLimX + constantes::dv_const * getvx()));
     }
@@ -147,13 +137,13 @@ void particula::colisionLimiteEjeX(bool lim_inf) {
 void particula::colisionLimiteEjeY(bool lim_inf) {
   double const min_value = 0.0000000001;
   if (lim_inf) {
-    double difLimY = constantes::dp_const - (getpy() - constantes::bmin_const[1]);
+    double const difLimY = constantes::dp_const - (getpy() - constantes::bmin_const[1]);
     if (difLimY > min_value) {
       setay(getay() +
             (constantes::ps_const * constantes::t_const - constantes::dv_const * getvy()));
     }
   } else {
-    double difLimY = constantes::dp_const - (constantes::bmax_const[1] - getpy());
+    double const difLimY = constantes::dp_const - (constantes::bmax_const[1] - getpy());
     if (difLimY > min_value) {
       setay(getay() - (constantes::ps_const * difLimY + constantes::dv_const * getvy()));
     }
@@ -163,13 +153,13 @@ void particula::colisionLimiteEjeY(bool lim_inf) {
 void particula::colisionLimiteEjeZ(bool lim_inf) {
   double const min_value = 0.0000000001;
   if (lim_inf) {
-    double difLimZ = constantes::dp_const - (getpz() - constantes::bmin_const[2]);
+    double const difLimZ = constantes::dp_const - (getpz() - constantes::bmin_const[2]);
     if (difLimZ > min_value) {
       setaz(getaz() +
             (constantes::ps_const * constantes::t_const - constantes::dv_const * getvz()));
     }
   } else {
-    double difLimZ = constantes::dp_const - (constantes::bmax_const[2] - getpz());
+    double const difLimZ = constantes::dp_const - (constantes::bmax_const[2] - getpz());
     if (difLimZ > min_value) {
       setaz(getaz() - (constantes::ps_const * difLimZ + constantes::dv_const * getvz()));
     }
@@ -222,7 +212,3 @@ void particula::actualizarMovimiento() {
   setvz(gethvz() + (getaz() * constantes::t_const) / 2);
   sethvz(gethvz() + getaz() * constantes::t_const);
 }
-
-// Función para escribir los parámetros generales
-
-// Función para escribir los datos de las partículas en el archivo

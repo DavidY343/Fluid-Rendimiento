@@ -12,18 +12,8 @@
 class grid {
   public:
     // Constructor
-    grid(std::vector<double> cabeceras, std::vector<particula> particulas) {
-      m  = cabeceras[0];
-      h  = cabeceras[1];
-      nx = static_cast<int>((constantes::bmax_const[0] - constantes::bmin_const[0]) / h);
-      ny = static_cast<int>((constantes::bmax_const[1] - constantes::bmin_const[1]) / h);
-      nz = static_cast<int>((constantes::bmax_const[2] - constantes::bmin_const[2]) / h);
-
+    grid(std::vector<double> cabeceras, const std::vector<particula>& particulas) : m(cabeceras[0]), h(cabeceras[1]), nx(static_cast<int>((constantes::bmax_const[0] - constantes::bmin_const[0]) / h)), ny(static_cast<int>((constantes::bmax_const[1] - constantes::bmin_const[1]) / h)), nz(static_cast<int>((constantes::bmax_const[2] - constantes::bmin_const[2]) / h)), sx((constantes::bmax_const[0] - constantes::bmin_const[0]) / nx), sy((constantes::bmax_const[1] - constantes::bmin_const[1]) / ny), sz((constantes::bmax_const[2] - constantes::bmin_const[2]) / nz) {
       using namespace std;
-
-      sx = (constantes::bmax_const[0] - constantes::bmin_const[0]) / nx;
-      sy = (constantes::bmax_const[1] - constantes::bmin_const[1]) / ny;
-      sz = (constantes::bmax_const[2] - constantes::bmin_const[2]) / nz;
       for (int i = 0; i < nx; i++) {
         for (int j = 0; j < ny; j++) {
           for (int k = 0; k < nz; k++) {
@@ -33,7 +23,6 @@ class grid {
           }
         }
       }
-
       /* este bucle no se puede dejar asi, pq luego se recorren todos los
       bloques para ver si las particulas estan bien colocadas
       tb hay q ver como gestionar las particulas con coordenadas fuera de la malla
@@ -46,11 +35,44 @@ class grid {
         //}
       }
     }
+    grid(const grid& other) = default;
 
-    // Destructor
-    ~grid() {
-      // Liberación de recursos o acciones de limpieza en el destructor
+    // Copy assignment operator
+    grid& operator=(const grid& other) {
+      if (this != &other) {
+        m = other.m;
+        h = other.h;
+        nx = other.nx;
+        ny = other.ny;
+        nz = other.nz;
+        sx = other.sx;
+        sy = other.sy;
+        sz = other.sz;
+        bloques = other.bloques;
+      }
+      return *this;
     }
+
+    // Move constructor
+    grid(grid&& other) noexcept : m(other.m), h(other.h), nx(other.nx), ny(other.ny), nz(other.nz), sx(other.sx), sy(other.sy), sz(other.sz), bloques(std::move(other.bloques)) {}
+
+    // Move assignment operator
+    grid& operator=(grid&& other) noexcept {
+      if (this != &other) {
+        m = other.m;
+        h = other.h;
+        nx = other.nx;
+        ny = other.ny;
+        nz = other.nz;
+        sx = other.sx;
+        sy = other.sy;
+        sz = other.sz;
+        bloques = std::move(other.bloques);
+      }
+      return *this;
+    }
+    // Destructor
+    ~grid() = default;
 
     void simular() {
       // esto lo use para hacer pruebas pero se puede quitar
@@ -77,7 +99,7 @@ class grid {
     void _calcular_aceleraciones();
 
     void colisiones_particulas();
-    void almacenar_resultados(std::ofstream & outputFile, std::ifstream const & inputFile);
+    void almacenar_resultados(std::ofstream & outputFile, const std::string& filename);
     void bucle_colisiones(int num_bloque, bool lim_inf, int dimension);
 
     particula acceder_bloque_part(int b, int p){
@@ -143,5 +165,4 @@ std::tuple<float, float, float, float, float, float, float, float, float>
     convertirDatos(particula const & particula) ;
         void init_simulate(int max_iteraciones, grid & malla);
 grid init_params(std::ifstream const & inputFile);
-void bubbleSort(std::vector<particula> &particles);
 #endif  // ARCOS_GRID_HPP

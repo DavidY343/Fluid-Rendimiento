@@ -100,9 +100,9 @@ void grid::calcular_densidades() {
   for (int b = 0; b < nx * ny * nz; b++) {
     for (unsigned long pi = 0; pi < bloques[b].particulas.size(); pi++) {
       std::vector<int> const bloques_contiguos = obtener_contiguos(b);
-      for (unsigned long b2 = 0; b2 < bloques_contiguos.size(); b2++) {
-        for (unsigned long pj = 0; pj < bloques[bloques_contiguos[b2]].particulas.size(); pj++) {
-          bloques[b].particulas[pi].interactuar_densidad(bloques[bloques_contiguos[b2]].particulas[pj], h, false);
+      for (int const bloques_contiguo : bloques_contiguos) {
+        for (unsigned long pj = 0; pj < bloques[bloques_contiguo].particulas.size(); pj++) {
+          bloques[b].particulas[pi].interactuar_densidad(bloques[bloques_contiguo].particulas[pj], h, false);
         }
       }
     }
@@ -213,7 +213,10 @@ void init_simulate(int const max_iteraciones, grid & malla) {
     cout << "----------------------------------------------------\n";
   }
 }
-void escribir_parametros_generales(std::ofstream & outputFile, std::ifstream const & inputFile) {
+void escribir_parametros_generales(std::ofstream & outputFile, const std::string& filename) {
+  std::ifstream inputFile(filename,
+                          std::ios::binary);
+  inputFile.seekg(0, std::ios::beg);
   auto ppm = (read_binary_value<float>((std::istream &) inputFile));
   auto n_particulas_int = read_binary_value<int>((std::istream &) inputFile);
   outputFile.write(as_buffer(ppm), sizeof(ppm));
@@ -236,6 +239,7 @@ std::tuple<float, float, float, float, float, float, float, float, float>
   return std::make_tuple(px_dat, py_dat, pz_dat, hvx, hvy, hvz, vx_dat, vy_dat, vz_dat);
 }
 
+
 void escribir_datos_particulas(std::ofstream & outputFile, particula const & particula) {
   auto [px_dat, py_dat, pz_dat, hvx, hvy, hvz, vx_dat, vy_dat, vz_dat] = convertirDatos(particula);
 
@@ -249,31 +253,49 @@ void escribir_datos_particulas(std::ofstream & outputFile, particula const & par
   outputFile.write(as_buffer(vy_dat), sizeof(vy_dat));
   outputFile.write(as_buffer(vz_dat), sizeof(vz_dat));
 }
+template <typename T>
+void mySwap(T& a, T& b) {
+  T temp = a;
+  a = b;
+  b = temp;
+}
 
-/*
-void grid::almacenar_resultados(std::ofstream & outputFile, std::ifstream const & inputFile) {
-  // Escribir los parámetros generales
-  escribir_parametros_generales(outputFile, inputFile);
-
-
-  for (int i = 0; i < getnx() * getny() * getnz(); i++) {
-    for (auto & particula : bloques[i].particulas) {
-        escribir_datos_particulas(outputFile, particula);
+template <typename T>
+void mySort(std::vector<T>& arr) {
+  for (size_t i = 0; i < arr.size() - 1; ++i) {
+    for (size_t j = 0; j < arr.size() - 1 - i; ++j) {
+        if (arr[j + 1].getid() < arr[j].getid()) {
+        mySwap(arr[j], arr[j + 1]);
+        }
     }
   }
-}*/
+}
+void grid::almacenar_resultados(std::ofstream & outputFile, const std::string& filename) {
+  // Escribir los parámetros generales
+  escribir_parametros_generales(outputFile, filename);
 
+  std::vector<particula> particulas;
+  for (int i = 0; i < getnx() * getny() * getnz(); i++) {
+    for (auto & particula : bloques[i].particulas) {
+        particulas.push_back(particula);
+    }
+  }
+  mySort(particulas);
+  // Escribir los datos de las partículas
+  for (const auto & particula : particulas){
+    escribir_datos_particulas(outputFile, particula);
+  }
+}
+// No me deja usar mergesort pq me dice que es recursivo xD
+/*
 void merge(std::vector<particula>& arr, size_t l, size_t m, size_t r) {
   size_t n1 = m - l + 1;
   size_t n2 = r - m;
-
   // Crear vectores temporales
   std::vector<particula> L(arr.begin() + l, arr.begin() + l + n1);
   std::vector<particula> R(arr.begin() + m + 1, arr.begin() + m + 1 + n2);
-
   // Índices iniciales de los subvectores
   size_t i = 0, j = 0, k = l;
-
   // Combinar los subvectores de nuevo en arr
   while (i < n1 && j < n2) {
     if (L[i].getid() <= R[j].getid()) {
@@ -282,12 +304,10 @@ void merge(std::vector<particula>& arr, size_t l, size_t m, size_t r) {
         arr[k++] = R[j++];
     }
   }
-
   // Copiar los elementos restantes de L (si los hay)
   while (i < n1) {
     arr[k++] = L[i++];
   }
-
   // Copiar los elementos restantes de R (si los hay)
   while (j < n2) {
     arr[k++] = R[j++];
@@ -306,67 +326,6 @@ void mergeSort(std::vector<particula>& arr, size_t l, size_t r) {
 
     // Combina las mitades ordenadas
     merge(arr, l, m, r);
-  }
-}
-bool compareByParticleId(const particula &a, const particula &b) {
-  return a.getid() < b.getid();
-}
-
-template <typename T>
-void mySwap(T& a, T& b) {
-  T temp = a;
-  a = b;
-  b = temp;
-}
-
-template <typename T>
-void mySort(std::vector<T>& arr) {
-  for (size_t i = 0; i < arr.size() - 1; ++i) {
-    for (size_t j = 0; j < arr.size() - 1 - i; ++j) {
-        if (arr[j + 1].getid() < arr[j].getid()) {
-        mySwap(arr[j], arr[j + 1]);
-        }
-    }
-  }
-}
-
-void grid::almacenar_resultados(std::ofstream & outputFile, std::ifstream const & inputFile) {
-  // Escribir los parámetros generales
-  escribir_parametros_generales(outputFile, inputFile);
-
-  std::vector<particula> particulas;
-  for (int i = 0; i < getnx() * getny() * getnz(); i++) {
-    for (auto & particula : bloques[i].particulas) {
-        particulas.push_back(particula);
-    }
-  }
-  mySort(particulas);
-  // Escribir los datos de las partículas
-  for (int i = 0; i < getnx() * getny() * getnz(); i++) {
-    for (auto & particula : bloques[i].particulas) {
-        escribir_datos_particulas(outputFile, particula);
-    }
-  }
-}/*
-void grid::almacenar_resultados(std::ofstream & outputFile, std::ifstream const & inputFile) {
-  // Escribir los parámetros generales
-  escribir_parametros_generales(outputFile, inputFile);
-
-  // Escribir los datos de las partículas
-  for (int i = 0; i < getnx() * getny() * getnz(); i++) {
-    // Ordenar las partículas en el bloque actual
-    size_t n = bloques[i].particulas.size();
-    for (size_t j = 0; j < n - 1; ++j) {
-        for (size_t k = 0; k < n - j - 1; ++k) {
-          if (bloques[i].particulas[k].getid() > bloques[i].particulas[k + 1].getid()) {
-            // Swap only if indices are within bounds
-            if (k + 1 < n) { std::swap(bloques[i].particulas[k], bloques[i].particulas[k + 1]); }
-            }
-        }
-    }
-    for (auto & particula : bloques[i].particulas) {
-        escribir_datos_particulas(outputFile, particula);
-    }
   }
 }
 */
