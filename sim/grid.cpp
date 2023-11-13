@@ -112,7 +112,7 @@ void grid::calcular_densidades() {
 void grid::transformar_densidades(){
   for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
     for (auto & particula : bloques[indice_bloque].particulas) {
-      particula.transformar_densidad(h);
+      particula.transformar_densidad(h, m);
     }
   }
 }

@@ -12,7 +12,14 @@
 class grid {
   public:
     // Constructor
-    grid(std::vector<double> cabeceras, const std::vector<particula>& particulas) : m(cabeceras[0]), h(cabeceras[1]), nx(static_cast<int>((constantes::bmax_const[0] - constantes::bmin_const[0]) / h)), ny(static_cast<int>((constantes::bmax_const[1] - constantes::bmin_const[1]) / h)), nz(static_cast<int>((constantes::bmax_const[2] - constantes::bmin_const[2]) / h)), sx((constantes::bmax_const[0] - constantes::bmin_const[0]) / nx), sy((constantes::bmax_const[1] - constantes::bmin_const[1]) / ny), sz((constantes::bmax_const[2] - constantes::bmin_const[2]) / nz) {
+    grid(std::vector<double> cabeceras, std::vector<particula> const & particulas)
+      : m(cabeceras[0]), h(cabeceras[1]),
+        nx(static_cast<int>((constantes::bmax_const[0] - constantes::bmin_const[0]) / h)),
+        ny(static_cast<int>((constantes::bmax_const[1] - constantes::bmin_const[1]) / h)),
+        nz(static_cast<int>((constantes::bmax_const[2] - constantes::bmin_const[2]) / h)),
+        sx((constantes::bmax_const[0] - constantes::bmin_const[0]) / nx),
+        sy((constantes::bmax_const[1] - constantes::bmin_const[1]) / ny),
+        sz((constantes::bmax_const[2] - constantes::bmin_const[2]) / nz) {
       using namespace std;
       for (int i = 0; i < nx; i++) {
         for (int j = 0; j < ny; j++) {
@@ -27,7 +34,7 @@ class grid {
       bloques para ver si las particulas estan bien colocadas
       tb hay q ver como gestionar las particulas con coordenadas fuera de la malla
     */
-      for (const auto & particula : particulas) {
+      for (auto const & particula : particulas) {
         // descarta todas las particulas q estan  fuera de la malla (igual luego lo quitamos)
         // if(constantes::bmin_const[0]<=particulas[i].getpx()&&particulas[i].getpx()<constantes::bmax_const[0]&&constantes::bmin_const[1]<=particulas[i].getpy()&&particulas[i].getpy()<constantes::bmax_const[1]&&constantes::bmin_const[2]<=particulas[i].getpz()&&particulas[i].getpz()<constantes::bmax_const[2])
         // {
@@ -35,42 +42,46 @@ class grid {
         //}
       }
     }
-    grid(const grid& other) = default;
+
+    grid(grid const & other) = default;
 
     // Copy assignment operator
-    grid& operator=(const grid& other) {
+    grid & operator=(grid const & other) {
       if (this != &other) {
-        m = other.m;
-        h = other.h;
-        nx = other.nx;
-        ny = other.ny;
-        nz = other.nz;
-        sx = other.sx;
-        sy = other.sy;
-        sz = other.sz;
+        m       = other.m;
+        h       = other.h;
+        nx      = other.nx;
+        ny      = other.ny;
+        nz      = other.nz;
+        sx      = other.sx;
+        sy      = other.sy;
+        sz      = other.sz;
         bloques = other.bloques;
       }
       return *this;
     }
 
     // Move constructor
-    grid(grid&& other) noexcept : m(other.m), h(other.h), nx(other.nx), ny(other.ny), nz(other.nz), sx(other.sx), sy(other.sy), sz(other.sz), bloques(std::move(other.bloques)) {}
+    grid(grid && other) noexcept
+      : m(other.m), h(other.h), nx(other.nx), ny(other.ny), nz(other.nz), sx(other.sx),
+        sy(other.sy), sz(other.sz), bloques(std::move(other.bloques)) { }
 
     // Move assignment operator
-    grid& operator=(grid&& other) noexcept {
+    grid & operator=(grid && other) noexcept {
       if (this != &other) {
-        m = other.m;
-        h = other.h;
-        nx = other.nx;
-        ny = other.ny;
-        nz = other.nz;
-        sx = other.sx;
-        sy = other.sy;
-        sz = other.sz;
+        m       = other.m;
+        h       = other.h;
+        nx      = other.nx;
+        ny      = other.ny;
+        nz      = other.nz;
+        sx      = other.sx;
+        sy      = other.sy;
+        sz      = other.sz;
         bloques = std::move(other.bloques);
       }
       return *this;
     }
+
     // Destructor
     ~grid() = default;
 
@@ -99,12 +110,10 @@ class grid {
     void _calcular_aceleraciones();
 
     void colisiones_particulas();
-    void almacenar_resultados(std::ofstream & outputFile, const std::string& filename);
+    void almacenar_resultados(std::ofstream & outputFile, std::string const & filename);
     void bucle_colisiones(int num_bloque, bool lim_inf, int dimension);
 
-    particula acceder_bloque_part(int b, int p){
-      return bloques[b].particulas[p];
-    }
+    particula acceder_bloque_part(int b, int p) { return bloques[b].particulas[p]; }
 
     [[nodiscard]] std::vector<int> obtener_contiguos(int n) const {
       std::vector<int> bloques_contiguos;
@@ -162,7 +171,7 @@ class grid {
 
 void escribir_datos_particulas(std::ofstream & outputFile, particula const & particula);
 std::tuple<float, float, float, float, float, float, float, float, float>
-    convertirDatos(particula const & particula) ;
-        void init_simulate(int max_iteraciones, grid & malla);
+    convertirDatos(particula const & particula);
+void init_simulate(int max_iteraciones, grid & malla);
 grid init_params(std::ifstream const & inputFile);
 #endif  // ARCOS_GRID_HPP

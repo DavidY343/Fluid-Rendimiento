@@ -124,12 +124,12 @@ void particula::colisionLimiteEjeX(bool lim_inf) {
     double const difLimX = constantes::dp_const - (getpx() - constantes::bmin_const[0]);
     if (difLimX > min_value) {
       setax(getax() +
-            (constantes::ps_const * constantes::t_const - constantes::dv_const * getvx()));
+            (constantes::sc_const * constantes::t_const - constantes::dv_const * getvx()));
     }
   } else {
     double const difLimX = constantes::dp_const - (constantes::bmax_const[0] - getpx());
     if (difLimX > min_value) {
-      setax(getax() - (constantes::ps_const * difLimX + constantes::dv_const * getvx()));
+      setax(getax() - (constantes::sc_const * difLimX + constantes::dv_const * getvx()));
     }
   }
 }
@@ -140,12 +140,12 @@ void particula::colisionLimiteEjeY(bool lim_inf) {
     double const difLimY = constantes::dp_const - (getpy() - constantes::bmin_const[1]);
     if (difLimY > min_value) {
       setay(getay() +
-            (constantes::ps_const * constantes::t_const - constantes::dv_const * getvy()));
+            (constantes::sc_const * constantes::t_const - constantes::dv_const * getvy()));
     }
   } else {
     double const difLimY = constantes::dp_const - (constantes::bmax_const[1] - getpy());
     if (difLimY > min_value) {
-      setay(getay() - (constantes::ps_const * difLimY + constantes::dv_const * getvy()));
+      setay(getay() - (constantes::sc_const * difLimY + constantes::dv_const * getvy()));
     }
   }
 }
@@ -156,12 +156,12 @@ void particula::colisionLimiteEjeZ(bool lim_inf) {
     double const difLimZ = constantes::dp_const - (getpz() - constantes::bmin_const[2]);
     if (difLimZ > min_value) {
       setaz(getaz() +
-            (constantes::ps_const * constantes::t_const - constantes::dv_const * getvz()));
+            (constantes::sc_const * constantes::t_const - constantes::dv_const * getvz()));
     }
   } else {
     double const difLimZ = constantes::dp_const - (constantes::bmax_const[2] - getpz());
     if (difLimZ > min_value) {
-      setaz(getaz() - (constantes::ps_const * difLimZ + constantes::dv_const * getvz()));
+      setaz(getaz() - (constantes::sc_const * difLimZ + constantes::dv_const * getvz()));
     }
   }
 }

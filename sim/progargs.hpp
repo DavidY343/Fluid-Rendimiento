@@ -11,6 +11,7 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+
 namespace constantes {
   double const r_const                   = 1.695;
   int const p_const                      = 1000;
@@ -105,9 +106,9 @@ class particula {
     void interactuar_aceleracion(particula &part, double h, double m, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
       double const d = pow(std::max(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2),pow(10,-12)), 0.5);
       std::vector<double> d_a;
-      d_a.push_back((((px-part.px)*((15*m*pow(h-d, 2)*(p + part.p - constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vx-vx)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
-      d_a.push_back((((py-part.py)*((15*m*pow(h-d, 2)*(p + part.p - constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vy-vy)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
-      d_a.push_back((((pz-part.pz)*((15*m*pow(h-d, 2)*(p + part.p - constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vz-vz)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
+      d_a.push_back((((px-part.px)*((15* 3 * constantes::ps_const * m*pow(h-d, 2)*(p + part.p - 2 * constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vx-vx)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
+      d_a.push_back((((py-part.py)*((15* 3 * constantes::ps_const * m*pow(h-d, 2)*(p + part.p - 2 * constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vy-vy)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
+      d_a.push_back((((pz-part.pz)*((15* 3 * constantes::ps_const * m*pow(h-d, 2)*(p + part.p - 2 * constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vz-vz)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
       ax += d_a[0];
       ay += d_a[1];
       az += d_a[2];
@@ -118,8 +119,12 @@ class particula {
       }
     }
 
-    void transformar_densidad(double h){
-      p = (p + pow(h, 6)) *(315/(64 * M_PI * pow(h, 9)));
+    void transformar_densidad(double h, double m){
+
+      std::cout<<(p + pow(h, 6))<<"\n"<<(315/(64 * M_PI * pow(h, 9))) << " jeje \n ";
+      p = (p + pow(h, 6)) *(315/(64 * M_PI * pow(h, 9))) * m;
+          int fgh = 15;
+      (void)fgh;
     }
 
     void colisionLimiteEjeX(bool lim_inf);
