@@ -160,23 +160,23 @@ class particula {
 
     [[nodiscard]] double getaz() const { return az; }
 
-    void setpx(double new_ax) { ax = new_ax; }
+    void setpx(double new_px) { px = new_px; }
 
-    void setpy(double new_ay) { ay = new_ay; }
+    void setpy(double new_py) { py = new_py; }
 
-    void setpz(double new_az) { az = new_az; }
+    void setpz(double new_pz) { pz = new_pz; }
 
-    void setvx(double new_ax) { ax = new_ax; }
+    void setvx(double new_vx) { vx = new_vx; }
 
-    void setvy(double new_ay) { ay = new_ay; }
+    void setvy(double new_vy) { vy = new_vy; }
 
-    void setvz(double new_az) { az = new_az; }
+    void setvz(double new_vz) { vz = new_vz; }
 
-    void sethvx(double new_ax) { ax = new_ax; }
+    void sethvx(double new_hvx) { hvx = new_hvx; }
 
-    void sethvy(double new_ay) { ay = new_ay; }
+    void sethvy(double new_hvy) { hvy = new_hvy; }
 
-    void sethvz(double new_az) { az = new_az; }
+    void sethvz(double new_hvz) { hvz = new_hvz; }
 
     void setax(double new_ax) { ax = new_ax; }
 

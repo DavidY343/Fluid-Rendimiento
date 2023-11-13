@@ -150,9 +150,11 @@ void grid::colisiones_particulas() {
     coordenadas = obtener_coordenadas(i);
     if (coordenadas[0] == 0 || coordenadas[0] == getnx() - 1) {
       bucle_colisiones(i, coordenadas[0] == 0, 0);
-    } else if (coordenadas[1] == 0 || coordenadas[1] == getny() - 1) {
+    }
+    if (coordenadas[1] == 0 || coordenadas[1] == getny() - 1) {
       bucle_colisiones(i, coordenadas[1] == 0, 1);
-    } else if (coordenadas[2] == 0 || coordenadas[2] == getnz() - 1) {
+    }
+    if (coordenadas[2] == 0 || coordenadas[2] == getnz() - 1) {
       bucle_colisiones(i, coordenadas[1] == 0, 2);
     }
   }
