@@ -312,12 +312,36 @@ bool compareByParticleId(const particula &a, const particula &b) {
   return a.getid() < b.getid();
 }
 
+template <typename T>
+void mySwap(T& a, T& b) {
+  T temp = a;
+  a = b;
+  b = temp;
+}
+
+template <typename T>
+void mySort(std::vector<T>& arr) {
+  for (size_t i = 0; i < arr.size() - 1; ++i) {
+    for (size_t j = 0; j < arr.size() - 1 - i; ++j) {
+        if (arr[j + 1].getid() < arr[j].getid()) {
+        mySwap(arr[j], arr[j + 1]);
+        }
+    }
+  }
+}
+
 void grid::almacenar_resultados(std::ofstream & outputFile, std::ifstream const & inputFile) {
   // Escribir los parámetros generales
   escribir_parametros_generales(outputFile, inputFile);
 
+  std::vector<particula> particulas;
+  for (int i = 0; i < getnx() * getny() * getnz(); i++) {
+    for (auto & particula : bloques[i].particulas) {
+        particulas.push_back(particula);
+    }
+  }
+  mySort(particulas);
   // Escribir los datos de las partículas
-
   for (int i = 0; i < getnx() * getny() * getnz(); i++) {
     for (auto & particula : bloques[i].particulas) {
         escribir_datos_particulas(outputFile, particula);

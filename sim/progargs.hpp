@@ -57,6 +57,7 @@ class particula {
     // Operador de asignación de copia
     particula & operator=(particula const & other) {
       if (this != &other) {
+        id  = other.id;
         px  = other.px;
         py  = other.py;
         pz  = other.pz;
