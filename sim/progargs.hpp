@@ -206,11 +206,13 @@ private:
     double p{0};
 };
 
+int n_params(int argc);
+
 // funciones
 int comprobar_archivos(std::vector<std::string> const & argumentos, std::ifstream const & inputFile,
                        std::ofstream const & outputFile);
 
-int comprobar_params(int argc, std::vector<std::string> const & argumentos,
+int comprobar_params(std::vector<std::string> const & argumentos,
                      std::ifstream const & inputFile, std::ofstream const & outputFile);
 
 std::vector<double> longitud_masa(std::ifstream const & inputFile);

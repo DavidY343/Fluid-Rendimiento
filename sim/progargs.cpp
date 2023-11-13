@@ -31,13 +31,9 @@ int comprobar_archivos(std::vector<std::string> const & argumentos, std::ifstrea
   return 0;
 }
 
-// Funcion que comprueba el número de parámetros pasados y si iteraciones es un numero
-int comprobar_params(int argc, std::vector<std::string> const & argumentos,
+// Si iteraciones es un numero
+int comprobar_params(std::vector<std::string> const & argumentos,
                      std::ifstream const & inputFile, std::ofstream const & outputFile) {
-  if (argc != 4) {
-    std::cerr << "Error: Invalid number of arguments:" << argc << "\n";
-    return -1;
-  }
   int nSteps = 0;
   try {
     nSteps = std::stoi(argumentos[0]);
@@ -54,6 +50,14 @@ int comprobar_params(int argc, std::vector<std::string> const & argumentos,
   }
   return comprobar_archivos(argumentos, inputFile, outputFile);
 };
+
+int n_params(int argc){
+  if (argc != 4) {
+    std::cerr << "Error: Invalid number of arguments:" << argc << "\n";
+    return -1;
+  }
+  return 0;
+}
 
 // Funciones para leer del archivo
 template <typename T>
