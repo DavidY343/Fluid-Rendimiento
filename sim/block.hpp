@@ -43,39 +43,30 @@ public:
       if (this != &other) { }
       return *this;
     }
-
     std::vector<particula> devolver_particulas(){
       std::vector<particula> devolver;
-      for(int p = particulas.size()-1; 0<=p; p--){
-        if (!p_bloque(particulas[p])){
+      for(int p_dat = particulas.size()-1; 0<=p_dat; p_dat--){
+        if (!p_bloque(particulas[p_dat])){
 
-             devolver.push_back(particulas[p]);
-             //particulas.erase(particulas.begin() + p);
-             this->particulas = eliminar(particulas, p);
+          devolver.push_back(particulas[p_dat]);
+          //particulas.erase(particulas.begin() + p);
+          this->particulas = eliminar(particulas, p_dat);
 
         }
       }
       return devolver;
     }
 
-    //pruebas
-    void imprimir_vector(std::vector<particula> v){
-      using namespace std;
-      for(unsigned long i = 0; i<v.size(); i++) {
-        cout << "v["<<i<<"]: "<<v[i].getid()<<endl;
-      }
-    }
 
     //espero poder elinar esta funcion
-    std::vector<particula> eliminar(std::vector<particula> v, int e){
+    static std::vector<particula> eliminar(std::vector<particula> v, int e){
       std::vector<particula> eliminado;
       for(unsigned long i = 0; i<v.size(); i++) {
-        if(e != static_cast<int>(i))
-          eliminado.push_back(v[i]);
+        if(e != static_cast<int>(i)){
+          eliminado.push_back(v[i]);}
       }
       return eliminado;
     }
-
     void anhadir_particulas(const particula &part){
         particulas.push_back(part);
     }
