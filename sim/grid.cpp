@@ -223,28 +223,34 @@ void grid::bucle_limites(int num_bloque, bool lim_inf, int dimension) {
   }
 }
 
-void simulate(std::ifstream const & inputFile, const int max_iteraciones, std::ofstream & outputFile) {
-  auto ppm = static_cast<double>(
-      read_binary_value<float>((std::istream &) inputFile));
-  double const m_dat = constantes::p_const / std::pow(ppm, 3.0);
-  double const h_dat = constantes::r_const / ppm;
-  std::vector<double> vtor                = {m_dat, h_dat};
-  std::vector<particula> const particulas = crear_particulas(inputFile);
+void print_params(const unsigned long tamanio, const double ppm, std::vector<double> const & vtor, grid const & malla)
+{
   using namespace std;
-  grid malla(vtor, particulas);
-  cout << "Number of particles: " << particulas.size() << "\n";
+  cout << "Number of particles: " << tamanio << "\n";
   cout << "Particles per meter: " << ppm << "\n";
   cout << "Smoothing length: " << vtor[1] << "\n";
   cout << "Particle mass: " << vtor[0] << "\n";
   cout << "Grid size: " << malla.getnx() << " x " << malla.getny()  << " x " << malla.getnz() << "\n";
   cout << "Number of blocks: " << malla.getnx() * malla.getny() * malla.getnz() << "\n";
   cout << "Block size: " << malla.getsx() << " x " << malla.getsy()  << " x " << malla.getsz() << "\n";
+}
+
+void simulate(std::ifstream const & inputFile, const int max_iteraciones, std::ofstream & outputFile) {
+  auto ppm = static_cast<double>(
+      read_binary_value<float>((std::istream &) inputFile));
+  double const m_dat = constantes::p_const / std::pow(ppm, 3.0);
+  double const h_dat = constantes::r_const / ppm;
+  std::vector<double> const vtor                = {m_dat, h_dat};
+  std::vector<particula> const particulas = crear_particulas(inputFile);
+  using namespace std;
+  grid malla(vtor, particulas);
+  print_params(particulas.size(), ppm, vtor, malla);
   for (int iteracion = 1; iteracion <= max_iteraciones; iteracion++) {
-      cout << "****************************************************\n";
-      cout << "iniciando  iteracion " << iteracion << "\n";
-      malla.simular();
-      cout << "finalizada iteracion " << iteracion << "\n";
-      cout << "----------------------------------------------------\n";
+    cout << "****************************************************\n";
+    cout << "iniciando  iteracion " << iteracion << "\n";
+    malla.simular();
+    cout << "finalizada iteracion " << iteracion << "\n";
+    cout << "----------------------------------------------------\n";
   }
   outputFile.write(as_buffer(ppm), sizeof(ppm));
   outputFile.write(as_buffer(particulas.size()), sizeof(particulas.size()));

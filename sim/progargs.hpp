@@ -30,7 +30,7 @@ class particula {
     // Constructor
     particula(int id, double px, double py, double pz, double hvx, double hvy, double hvz,
               double vy, double vx, double vz)
-      : id(id), px(px), py(py), pz(pz), hvx(hvx), hvy(hvy), hvz(hvz), vy(vy), vx(vx), vz(vz) {    }
+      : id(id), px(px), py(py), pz(pz), hvx(hvx), hvy(hvy), hvz(hvz), vx(vx), vy(vy), vz(vz) {    }
 
     // Constructor de copia
     particula(particula const & other) = default;
@@ -64,8 +64,8 @@ class particula {
         hvx = other.hvx;
         hvy = other.hvy;
         hvz = other.hvz;
-        vy  = other.vy;
         vx  = other.vx;
+        vy  = other.vy;
         vz  = other.vz;
         ax = other.ax;
         ay = other.ay;
