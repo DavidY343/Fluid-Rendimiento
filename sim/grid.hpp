@@ -24,22 +24,21 @@ class grid {
       for (int i = 0; i < nx; i++) {
         for (int j = 0; j < ny; j++) {
           for (int k = 0; k < nz; k++) {
-            bloques.emplace_back(constantes::bmin_const[0] + i * sx,
-                                 constantes::bmin_const[1] + j * sy,
-                                 constantes::bmin_const[2] + k * sz, sx, sy, sz);
+            std::vector<double> const position = {constantes::bmin_const[0] + i * sx,
+                                                  constantes::bmin_const[1] + j * sy,
+                                                  constantes::bmin_const[2] + k * sz};
+            std::vector<double> const size = {sx, sy, sz};
+            bloques.emplace_back(position,size);
           }
         }
       }
-      /* este bucle no se puede dejar asi, pq luego se recorren todos los
+      /* TODO:ver si este comentario se puede eliminar o hay q echar el ojo a algo
+       * este bucle no se puede dejar asi, pq luego se recorren todos los
       bloques para ver si las particulas estan bien colocadas
       tb hay q ver como gestionar las particulas con coordenadas fuera de la malla
-    */
+      */
       for (auto const & particula : particulas) {
-        // descarta todas las particulas q estan  fuera de la malla (igual luego lo quitamos)
-        // if(constantes::bmin_const[0]<=particulas[i].getpx()&&particulas[i].getpx()<constantes::bmax_const[0]&&constantes::bmin_const[1]<=particulas[i].getpy()&&particulas[i].getpy()<constantes::bmax_const[1]&&constantes::bmin_const[2]<=particulas[i].getpz()&&particulas[i].getpz()<constantes::bmax_const[2])
-        // {
         recolocar_particula(particula);
-        //}
       }
     }
 
@@ -87,7 +86,7 @@ class grid {
 
     void simular() {
       // esto lo use para hacer pruebas pero se puede quitar
-      localizar_particulas();
+      //localizar_particulas();
 
       // 4.3.1
       reposicionar_particulas();
@@ -99,9 +98,10 @@ class grid {
       colisiones_particulas();
     }
 
-    void localizar_particulas();
+    //TODO: pendiente eliminar
+    //void localizar_particulas();
     void reposicionar_particulas();
-    void recolocar_particula(particula part);
+    void recolocar_particula(const particula &part);
 
     void calcular_aceleraciones();
     void inicializar_densidades();
@@ -110,10 +110,10 @@ class grid {
     void _calcular_aceleraciones();
 
     void colisiones_particulas();
-    void almacenar_resultados(std::ofstream & outputFile, std::string const & filename);
+    void almacenar_resultados(std::ofstream & outputFile);
     void bucle_colisiones(int num_bloque, bool lim_inf, int dimension);
 
-    particula acceder_bloque_part(int b, int p) { return bloques[b].particulas[p]; }
+    particula acceder_bloque_part(int b, int p) { return bloques[b].getParticulas()[p]; }
 
     [[nodiscard]] std::vector<int> obtener_contiguos(int n) const {
       std::vector<int> bloques_contiguos;
@@ -172,6 +172,5 @@ class grid {
 void escribir_datos_particulas(std::ofstream & outputFile, particula const & particula);
 std::tuple<float, float, float, float, float, float, float, float, float>
     convertirDatos(particula const & particula);
-void init_simulate(int max_iteraciones, grid & malla);
-grid init_params(std::ifstream const & inputFile);
+void simulate(std::ifstream const & inputFile, int max_iteraciones, std::ofstream & outputFile);
 #endif  // ARCOS_GRID_HPP

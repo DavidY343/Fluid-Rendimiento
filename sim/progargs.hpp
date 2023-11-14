@@ -75,7 +75,7 @@ class particula {
       return *this;
     }
 
-    // Operador de asignación de movimiento  NO SE
+    // Operador de asignación de movimiento
     particula & operator=(particula && other) noexcept {
       if (this != &other) { }
       return *this;
@@ -120,11 +120,7 @@ class particula {
     }
 
     void transformar_densidad(double h, double m){
-
-      std::cout<<(p + pow(h, 6))<<"\n"<<(315/(64 * M_PI * pow(h, 9))) << " jeje \n ";
       p = (p + pow(h, 6)) *(315/(64 * M_PI * pow(h, 9))) * m;
-          int fgh = 15;
-      (void)fgh;
     }
 
     void colisionLimiteEjeX(bool lim_inf);
@@ -216,7 +212,7 @@ int comprobar_params(std::vector<std::string> const & argumentos,
                      std::ifstream const & inputFile, std::ofstream const & outputFile);
 
 std::vector<double> longitud_masa(std::ifstream const & inputFile);
-int comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_particulas_int);
+void comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_particulas_int);
 std::vector<particula> crear_particulas(std::ifstream const & inputFile);
 
     template <typename T>

@@ -11,14 +11,16 @@
 #include <iostream>
 #include <tuple>
 
+/*
+//TODO: pendiente eliminar
 void grid::localizar_particulas(){
   unsigned long suma = 0;
   for (int b_dat = 0; b_dat < nx * ny * nz; b_dat++) {
-    suma += bloques[b_dat].particulas.size();
+    suma += bloques[b_dat].getParticulas().size();
   }
   using namespace std;
   cout << "Se encontraron " << suma << " particulas en la malla\n";
-}
+}*/
 
 void grid::reposicionar_particulas() {
   using namespace std;
@@ -38,12 +40,11 @@ void grid::reposicionar_particulas() {
   cout << "particulas reposicionadas\n";
 }
 
-void grid::recolocar_particula(particula part) {  // esta funcion se puede simplificar
-  using namespace std;
+void grid::recolocar_particula(const particula &part) {  // esta funcion se puede simplificar
   int indice_i = static_cast<int>((part.getpx() - constantes::bmin_const[0]) / sx);
-  if(indice_i<0){
+  if(indice_i<0) {
     indice_i = 0;
-  } else if (indice_i >= nx){
+  } else if (indice_i >= nx) {
     indice_i = nx-1;
   }
   int indice_j = static_cast<int>((part.getpy() - constantes::bmin_const[1]) / sy);
@@ -59,7 +60,6 @@ void grid::recolocar_particula(particula part) {  // esta funcion se puede simpl
     indice_k = nz-1;
   }
   int const indice_bloque = obtener_indice(indice_i, indice_j, indice_k);
-  //cout<<indice_i<<","<<indice_j<<","<<indice_k<<","<<indice_bloque<<"  particula id="<<part.getid()<<endl;
   bloques[indice_bloque].anhadir_particulas(part);
 }
 
@@ -79,7 +79,7 @@ void grid::calcular_aceleraciones() {
 
 void grid::inicializar_densidades(){
   for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
-    for (auto & particula : bloques[indice_bloque].particulas) {
+    for (auto & particula : bloques[indice_bloque].getParticulas()) {
       particula.inicializar_densidad_aceleracion();
     }
   }
@@ -87,22 +87,22 @@ void grid::inicializar_densidades(){
 
 void grid::calcular_densidades() {
   for (int indice_b = 0; indice_b < nx * ny * nz; indice_b++) {
-    for (unsigned long pi = 0; pi < bloques[indice_b].particulas.size(); pi++) {
-      for (unsigned long pj = 0; pj < bloques[indice_b].particulas.size();
+    for (unsigned long pi = 0; pi < bloques[indice_b].getParticulas().size(); pi++) {
+      for (unsigned long pj = 0; pj < bloques[indice_b].getParticulas().size();
            pj++) {  // reducir las iteraciones de este bucle
         if (pi > pj) {
-          bloques[indice_b].particulas[pi].interactuar_densidad(bloques[indice_b].particulas[pj], h, true);
+          bloques[indice_b].getParticulas()[pi].interactuar_densidad(bloques[indice_b].getParticulas()[pj], h, true);
         }
       }
     }
   }
 
   for (int b = 0; b < nx * ny * nz; b++) {
-    for (unsigned long pi = 0; pi < bloques[b].particulas.size(); pi++) {
+    for (unsigned long pi = 0; pi < bloques[b].getParticulas().size(); pi++) {
       std::vector<int> const bloques_contiguos = obtener_contiguos(b);
       for (int const bloques_contiguo : bloques_contiguos) {
-        for (unsigned long pj = 0; pj < bloques[bloques_contiguo].particulas.size(); pj++) {
-          bloques[b].particulas[pi].interactuar_densidad(bloques[bloques_contiguo].particulas[pj], h, false);
+        for (unsigned long pj = 0; pj < bloques[bloques_contiguo].getParticulas().size(); pj++) {
+          bloques[b].getParticulas()[pi].interactuar_densidad(bloques[bloques_contiguo].getParticulas()[pj], h, false);
         }
       }
     }
@@ -111,7 +111,7 @@ void grid::calcular_densidades() {
 
 void grid::transformar_densidades(){
   for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
-    for (auto & particula : bloques[indice_bloque].particulas) {
+    for (auto & particula : bloques[indice_bloque].getParticulas()) {
       particula.transformar_densidad(h, m);
     }
   }
@@ -119,11 +119,11 @@ void grid::transformar_densidades(){
 
 void grid::_calcular_aceleraciones(){
   for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
-    for (unsigned long pi = 0; pi < bloques[indice_bloque].particulas.size(); pi++) {
-      for (unsigned long pj = 0; pj < bloques[indice_bloque].particulas.size();
+    for (unsigned long pi = 0; pi < bloques[indice_bloque].getParticulas().size(); pi++) {
+      for (unsigned long pj = 0; pj < bloques[indice_bloque].getParticulas().size();
            pj++) {  // reducir las iteraciones de este bucle
         if (pi > pj) {
-          bloques[indice_bloque].particulas[pi].interactuar_aceleracion(bloques[indice_bloque].particulas[pj], h, m,
+          bloques[indice_bloque].getParticulas()[pi].interactuar_aceleracion(bloques[indice_bloque].getParticulas()[pj], h, m,
                                                             true);
         }
       }
@@ -132,11 +132,11 @@ void grid::_calcular_aceleraciones(){
 
   // bloques contiguos
   for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
-    for (unsigned long pi = 0; pi < bloques[indice_bloque].particulas.size(); pi++) {
+    for (unsigned long pi = 0; pi < bloques[indice_bloque].getParticulas().size(); pi++) {
       std::vector<int> const bloques_contiguos = obtener_contiguos(indice_bloque);
       for (unsigned long b2 = 0; b2 < bloques_contiguos.size(); b2++) {
-        for (unsigned long pj = 0; pj < bloques[b2].particulas.size(); pj++) {
-          bloques[indice_bloque].particulas[pi].interactuar_aceleracion(bloques[b2].particulas[pj], h, m,
+        for (unsigned long pj = 0; pj < bloques[b2].getParticulas().size(); pj++) {
+          bloques[indice_bloque].getParticulas()[pi].interactuar_aceleracion(bloques[b2].getParticulas()[pj], h, m,
                                                             false);
         }
       }
@@ -161,7 +161,7 @@ void grid::colisiones_particulas() {
 }
 
 void grid::bucle_colisiones(int num_bloque, bool lim_inf, int dimension) {
-  for (auto & particula : bloques[num_bloque].particulas) {
+  for (auto & particula : bloques[num_bloque].getParticulas()) {
       if (dimension == 0) {
         particula.colisionLimiteEjeX(lim_inf);
         // 4.3.4
@@ -184,7 +184,7 @@ void grid::bucle_colisiones(int num_bloque, bool lim_inf, int dimension) {
   }
 }
 
-grid init_params(std::ifstream const & inputFile) {
+void simulate(std::ifstream const & inputFile, const int max_iteraciones, std::ofstream & outputFile) {
   auto ppm = static_cast<double>(
       read_binary_value<float>((std::istream &) inputFile));
   double const m_dat = constantes::p_const / std::pow(ppm, 3.0);
@@ -192,38 +192,24 @@ grid init_params(std::ifstream const & inputFile) {
   std::vector<double> vtor                = {m_dat, h_dat};
   std::vector<particula> const particulas = crear_particulas(inputFile);
   using namespace std;
-  grid const malla(vtor, particulas);
+  grid malla(vtor, particulas);
   cout << "Number of particles: " << particulas.size() << "\n";
   cout << "Particles per meter: " << ppm << "\n";
   cout << "Smoothing length: " << vtor[1] << "\n";
   cout << "Particle mass: " << vtor[0] << "\n";
-  return malla;
-}
-
-void init_simulate(int const max_iteraciones, grid & malla) {
-  using namespace std;
   cout << "Grid size: " << malla.getnx() << " x " << malla.getny()  << " x " << malla.getnz() << "\n";
   cout << "Number of blocks: " << malla.getnx() * malla.getny() * malla.getnz() << "\n";
   cout << "Block size: " << malla.getsx() << " x " << malla.getsy()  << " x " << malla.getsz() << "\n";
   for (int iteracion = 1; iteracion <= max_iteraciones; iteracion++) {
-    cout << "****************************************************\n";
-    cout << "iniciando  iteracion " << iteracion << "\n";
-
-    malla.simular();
-
-    cout << "finalizada iteracion " << iteracion << "\n";
-    cout << "----------------------------------------------------\n";
+      cout << "****************************************************\n";
+      cout << "iniciando  iteracion " << iteracion << "\n";
+      malla.simular();
+      cout << "finalizada iteracion " << iteracion << "\n";
+      cout << "----------------------------------------------------\n";
   }
-}
-void escribir_parametros_generales(std::ofstream & outputFile, const std::string& filename) {
-  std::ifstream inputFile(filename,
-                          std::ios::binary);
-
-  auto ppm = (read_binary_value<float>((std::istream &) inputFile));
-  auto n_particulas_int = read_binary_value<int>((std::istream &) inputFile);
   outputFile.write(as_buffer(ppm), sizeof(ppm));
-  outputFile.write(as_buffer(n_particulas_int), sizeof(n_particulas_int));
-  inputFile.close();
+  outputFile.write(as_buffer(particulas.size()), sizeof(particulas.size()));
+  malla.almacenar_resultados(outputFile);
 }
 
 // Función para convertir los datos de las partículas de doble a simple precisión
@@ -273,13 +259,11 @@ void mySort(std::vector<T>& arr) {
     }
   }
 }
-void grid::almacenar_resultados(std::ofstream & outputFile, const std::string& filename) {
-  // Escribir los parámetros generales
-  escribir_parametros_generales(outputFile, filename);
+void grid::almacenar_resultados(std::ofstream & outputFile) {
 
   std::vector<particula> particulas;
   for (int i = 0; i < getnx() * getny() * getnz(); i++) {
-    for (auto & particula : bloques[i].particulas) {
+    for (auto & particula : bloques[i].getParticulas()) {
         particulas.push_back(particula);
     }
   }

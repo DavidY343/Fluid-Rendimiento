@@ -44,7 +44,7 @@ int comprobar_params(std::vector<std::string> const & argumentos,
     return -1;
   }
   if (nSteps < 0) {
-    std::cerr << "Error: Invalid number of timesteps."
+    std::cerr << "Error: Invalid number of time steps."
               << "\n";
     return -2;
   }
@@ -82,15 +82,17 @@ T read_binary_value(std::istream & is) {
   return value;
 }
 
-int comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_particulas_int) {
+void comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_particulas_int) {
   int const longitud = static_cast<int>(particulas.size());
   int const error    = -5;
-  if (longitud != n_particulas_int) {
-    std::cerr << "Number of particles mismatch. Header:" << n_particulas_int
-              << ", Found:" << longitud << ".";
+  if (n_particulas_int <= 0) {
+    std::cerr << "Invalid number of particles: " << n_particulas_int<< ".\n";
     exit(error);
-  } else {
-    return 0;
+  }
+  if (longitud != n_particulas_int) {
+    std::cerr << "Number of particles mismatch. Header: " << n_particulas_int
+              << ", Found: " << longitud << ".\n";
+    exit(error);
   }
 }
 
