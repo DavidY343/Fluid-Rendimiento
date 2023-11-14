@@ -96,6 +96,8 @@ class grid {
 
       // 4.3.3 y 4.3.4 y 4.3.5
       colisiones_particulas();
+
+      movimiento_particulas();
     }
 
     //TODO: pendiente eliminar
@@ -110,6 +112,8 @@ class grid {
     void transferir_aceleraciones();
 
     void colisiones_particulas();
+    void movimiento_particulas();
+    void bucle_limites(int num_bloque, bool lim_inf, int dimension);
     void almacenar_resultados(std::ofstream & outputFile);
     void bucle_colisiones(int num_bloque, bool lim_inf, int dimension);
 

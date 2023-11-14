@@ -164,8 +164,8 @@ private:
     double hvx;
     double hvy;
     double hvz;
-    double vy;
     double vx;
+    double vy;
     double vz;
     double ax{0};
     double ay{0};

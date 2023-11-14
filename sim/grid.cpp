@@ -175,17 +175,48 @@ void grid::bucle_colisiones(int num_bloque, bool lim_inf, int dimension) {
     switch (dimension) {
       case 0:
         particula.colisionLimiteEjeX(lim_inf);
-        particula.actualizarMovimiento(); // 4.3.4
-        particula.limiteRecintox(lim_inf); // 4.3.5
         break;
       case 1:
         particula.colisionLimiteEjeY(lim_inf);
-        particula.actualizarMovimiento(); // 4.3.4
-        particula.limiteRecintoy(lim_inf); // 4.3.5
         break;
       default:
         particula.colisionLimiteEjeZ(lim_inf);
-        particula.actualizarMovimiento(); // 4.3.4
+        break;
+    }
+  }
+}
+
+
+void grid::movimiento_particulas(){
+
+  std::vector<int> coordenadas;
+  for (int i = 0; i < getnx() * getny() * getnz(); i++) {
+    for (auto & particula : bloques[i].getParticulas()) {
+      particula.actualizarMovimiento();
+    }
+    coordenadas = obtener_coordenadas(i);
+    if (coordenadas[0] == 0 || coordenadas[0] == getnx() - 1) {
+      bucle_limites(i, coordenadas[0] == 0, 0);
+    }
+    if (coordenadas[1] == 0 || coordenadas[1] == getny() - 1) {
+      bucle_limites(i, coordenadas[1] == 0, 1);
+    }
+    if (coordenadas[2] == 0 || coordenadas[2] == getnz() - 1) {
+      bucle_limites(i, coordenadas[1] == 0, 2);
+    }
+  }
+}
+
+void grid::bucle_limites(int num_bloque, bool lim_inf, int dimension) {
+  for (auto & particula : bloques[num_bloque].getParticulas()) {
+    switch (dimension) {
+      case 0:
+        particula.limiteRecintox(lim_inf); // 4.3.5
+        break;
+      case 1:
+        particula.limiteRecintoy(lim_inf); // 4.3.5
+        break;
+      default:
         particula.limiteRecintoz(lim_inf); // 4.3.5
         break;
     }
