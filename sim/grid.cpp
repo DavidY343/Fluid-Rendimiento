@@ -218,11 +218,12 @@ void init_simulate(int const max_iteraciones, grid & malla) {
 void escribir_parametros_generales(std::ofstream & outputFile, const std::string& filename) {
   std::ifstream inputFile(filename,
                           std::ios::binary);
-  inputFile.seekg(0, std::ios::beg);
+
   auto ppm = (read_binary_value<float>((std::istream &) inputFile));
   auto n_particulas_int = read_binary_value<int>((std::istream &) inputFile);
   outputFile.write(as_buffer(ppm), sizeof(ppm));
   outputFile.write(as_buffer(n_particulas_int), sizeof(n_particulas_int));
+  inputFile.close();
 }
 
 // Función para convertir los datos de las partículas de doble a simple precisión
@@ -287,6 +288,7 @@ void grid::almacenar_resultados(std::ofstream & outputFile, const std::string& f
   for (const auto & particula : particulas){
     escribir_datos_particulas(outputFile, particula);
   }
+  outputFile.close();
 }
 // No me deja usar mergesort pq me dice que es recursivo xD
 /*
