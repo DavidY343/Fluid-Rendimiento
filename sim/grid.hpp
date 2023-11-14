@@ -107,7 +107,7 @@ class grid {
     void inicializar_densidades();
     void calcular_densidades();
     void transformar_densidades();
-    void _calcular_aceleraciones();
+    void transferir_aceleraciones();
 
     void colisiones_particulas();
     void almacenar_resultados(std::ofstream & outputFile);

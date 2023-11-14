@@ -64,7 +64,7 @@ void grid::recolocar_particula(const particula &part) {  // esta funcion se pued
 }
 
 void grid::calcular_aceleraciones() {
-  // inicializar
+  // TODO:se hace solo la primera vez o cada vez? inicializar
   inicializar_densidades();
 
   // calcular densidades
@@ -74,7 +74,7 @@ void grid::calcular_aceleraciones() {
   transformar_densidades();
 
   // calcular aceleraciones
-  _calcular_aceleraciones();
+  transferir_aceleraciones();
 }
 
 void grid::inicializar_densidades(){
@@ -84,25 +84,27 @@ void grid::inicializar_densidades(){
     }
   }
 }
-
-void grid::calcular_densidades() {
-  for (int indice_b = 0; indice_b < nx * ny * nz; indice_b++) {
-    for (unsigned long pi = 0; pi < bloques[indice_b].getParticulas().size(); pi++) {
-      for (unsigned long pj = 0; pj < bloques[indice_b].getParticulas().size();
-           pj++) {  // reducir las iteraciones de este bucle
-        if (pi > pj) {
-          bloques[indice_b].getParticulas()[pi].interactuar_densidad(bloques[indice_b].getParticulas()[pj], h, true);
-        }
-      }
-    }
-  }
-
+/*Versión en dos bucles
   for (int b = 0; b < nx * ny * nz; b++) {
     for (unsigned long pi = 0; pi < bloques[b].getParticulas().size(); pi++) {
       std::vector<int> const bloques_contiguos = obtener_contiguos(b);
       for (int const bloques_contiguo : bloques_contiguos) {
         for (unsigned long pj = 0; pj < bloques[bloques_contiguo].getParticulas().size(); pj++) {
           bloques[b].getParticulas()[pi].interactuar_densidad(bloques[bloques_contiguo].getParticulas()[pj], h, false);
+        }
+      }
+    }
+  }*/
+void grid::calcular_densidades() {
+  for (int indice_b = 0; indice_b < nx * ny * nz; indice_b++) {
+    for (unsigned long pi = 0; pi < bloques[indice_b].getParticulas().size(); pi++) {
+      for (unsigned long pj = pi + 1; pj < bloques[indice_b].getParticulas().size(); pj++) {  // reducir las iteraciones de este bucle
+          bloques[indice_b].getParticulas()[pi].interactuar_densidad(bloques[indice_b].getParticulas()[pj], h, true);
+      }//esto es cambiable
+      std::vector<int> const bloques_contiguos = obtener_contiguos(indice_b);
+      for (int const bloques_contiguo : bloques_contiguos) {
+        for (unsigned long pj = 0; pj < bloques[bloques_contiguo].getParticulas().size(); pj++) {
+          bloques[indice_b].getParticulas()[pi].interactuar_densidad(bloques[bloques_contiguo].getParticulas()[pj], h, false);
         }
       }
     }
@@ -116,21 +118,9 @@ void grid::transformar_densidades(){
     }
   }
 }
+/*
 
-void grid::_calcular_aceleraciones(){
-  for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
-    for (unsigned long pi = 0; pi < bloques[indice_bloque].getParticulas().size(); pi++) {
-      for (unsigned long pj = 0; pj < bloques[indice_bloque].getParticulas().size();
-           pj++) {  // reducir las iteraciones de este bucle
-        if (pi > pj) {
-          bloques[indice_bloque].getParticulas()[pi].interactuar_aceleracion(bloques[indice_bloque].getParticulas()[pj], h, m,
-                                                            true);
-        }
-      }
-    }
-  }
-
-  // bloques contiguos
+  esto verlo blablabla
   for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
     for (unsigned long pi = 0; pi < bloques[indice_bloque].getParticulas().size(); pi++) {
       std::vector<int> const bloques_contiguos = obtener_contiguos(indice_bloque);
@@ -142,6 +132,26 @@ void grid::_calcular_aceleraciones(){
       }
     }
   }
+ */
+void grid::transferir_aceleraciones(){
+  for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
+    for (unsigned long pi = 0; pi < bloques[indice_bloque].getParticulas().size(); pi++) {
+      for (unsigned long pj = pi + 1; pj < bloques[indice_bloque].getParticulas().size();
+           pj++) {  // reducir las iteraciones de este bucle
+          bloques[indice_bloque].getParticulas()[pi].interactuar_aceleracion(bloques[indice_bloque].getParticulas()[pj], h, m,
+                                                            true);
+      }
+      //bloques contiguos
+      std::vector<int> const bloques_contiguos = obtener_contiguos(indice_bloque);
+      for (unsigned long b2 = 0; b2 < bloques_contiguos.size(); b2++) {
+        for (unsigned long pj = 0; pj < bloques[b2].getParticulas().size(); pj++) {
+          bloques[indice_bloque].getParticulas()[pi].interactuar_aceleracion(bloques[b2].getParticulas()[pj], h, m,
+                                                                             false);
+        }
+      }
+    }
+  }
+
 }
 
 void grid::colisiones_particulas() {
@@ -162,25 +172,23 @@ void grid::colisiones_particulas() {
 
 void grid::bucle_colisiones(int num_bloque, bool lim_inf, int dimension) {
   for (auto & particula : bloques[num_bloque].getParticulas()) {
-      if (dimension == 0) {
+    switch (dimension) {
+      case 0:
         particula.colisionLimiteEjeX(lim_inf);
-        // 4.3.4
-        particula.actualizarMovimiento();
-        // 4.3.5
-        particula.limiteRecintox(lim_inf);
-      }else if (dimension == 1) {
+        particula.actualizarMovimiento(); // 4.3.4
+        particula.limiteRecintox(lim_inf); // 4.3.5
+        break;
+      case 1:
         particula.colisionLimiteEjeY(lim_inf);
-        // 4.3.4
-        particula.actualizarMovimiento();
-        // 4.3.5
-        particula.limiteRecintoy(lim_inf);
-      }else if (dimension == 2) {
+        particula.actualizarMovimiento(); // 4.3.4
+        particula.limiteRecintoy(lim_inf); // 4.3.5
+        break;
+      default:
         particula.colisionLimiteEjeZ(lim_inf);
-        // 4.3.4
-        particula.actualizarMovimiento();
-        // 4.3.5
-        particula.limiteRecintoz(lim_inf);
-      }
+        particula.actualizarMovimiento(); // 4.3.4
+        particula.limiteRecintoz(lim_inf); // 4.3.5
+        break;
+    }
   }
 }
 

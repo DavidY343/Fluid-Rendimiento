@@ -5,7 +5,6 @@
 #ifndef ARCOS_PROGARGS_HPP
 #define ARCOS_PROGARGS_HPP
 
-#include <array>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -21,9 +20,9 @@ namespace constantes {
   double const u_const                   = 0.4;
   double const dp_const                  = 0.0002;
   double const t_const                   = 0.001;
-  std::array<double, 3> const g_const    = {0.0, -9.8, 0.0};
-  std::array<double, 3> const bmax_const = {0.065, 0.1, 0.065};
-  std::array<double, 3> const bmin_const = {-0.065, -0.08, -0.065};
+  std::vector<double> const g_const    = {0.0, -9.8, 0.0};
+  std::vector<double> const bmax_const = {0.065, 0.1, 0.065};
+  std::vector<double> const bmin_const = {-0.065, -0.08, -0.065};
 }  // namespace constantes
 
 class particula {
@@ -81,47 +80,19 @@ class particula {
       return *this;
     }
 
-    void inicializar_densidad_aceleracion(){
-      p = 0;
-      ax = constantes::g_const[0];
-      ay = constantes::g_const[1];
-      az = constantes::g_const[2];
-    }
+    void inicializar_densidad_aceleracion();
 
+    //TODO: esto es pa depurar, pendiente a eliminar
     void imprimir_datos() const{
       using namespace std;
       cout<<"particula con id:"<<id<<" en posicion:("<<px<<", "<<py<<", "<<pz<<")\n";
     }
 
-    void interactuar_densidad(particula &part, double h, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
-      double const distancia_cuadrado = pow(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2), 0.5);
-      if(pow(distancia_cuadrado, 2)< pow(h, 2)){
-        p += pow(pow(h, 2) - pow(distancia_cuadrado, 2), 3);
-      }
-      if(sumar_a_ambas_part){
-        part.p += pow(pow(h, 2) - pow(distancia_cuadrado, 2), 3);
-      }
-    }
+    void interactuar_densidad(particula &part, double h, bool sumar_a_ambas_part);
 
-    void interactuar_aceleracion(particula &part, double h, double m, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
-      double const d = pow(std::max(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2),pow(10,-12)), 0.5);
-      std::vector<double> d_a;
-      d_a.push_back((((px-part.px)*((15* 3 * constantes::ps_const * m*pow(h-d, 2)*(p + part.p - 2 * constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vx-vx)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
-      d_a.push_back((((py-part.py)*((15* 3 * constantes::ps_const * m*pow(h-d, 2)*(p + part.p - 2 * constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vy-vy)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
-      d_a.push_back((((pz-part.pz)*((15* 3 * constantes::ps_const * m*pow(h-d, 2)*(p + part.p - 2 * constantes::p_const))/(M_PI* pow(h, 6)*d)))+(part.vz-vz)*(45/(M_PI*pow(h, 6)*m*constantes::u_const)))/(p*part.p));
-      ax += d_a[0];
-      ay += d_a[1];
-      az += d_a[2];
-      if(sumar_a_ambas_part) {
-        part.ax -= d_a[0];
-        part.ay -= d_a[1];
-        part.az -= d_a[2];
-      }
-    }
+    void interactuar_aceleracion(particula &part, double h, double m, bool sumar_a_ambas_part);
 
-    void transformar_densidad(double h, double m){
-      p = (p + pow(h, 6)) *(315/(64 * M_PI * pow(h, 9))) * m;
-    }
+    void transformar_densidad(double h, double m);
 
     void colisionLimiteEjeX(bool lim_inf);
     void colisionLimiteEjeY(bool lim_inf);

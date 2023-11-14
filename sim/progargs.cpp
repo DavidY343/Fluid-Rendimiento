@@ -4,11 +4,11 @@
 
 #include "progargs.hpp"
 
-#include "grid.hpp"
 //
 // Created by david on 10/3/23.
 //
 
+#include <numbers>
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
@@ -49,7 +49,7 @@ int comprobar_params(std::vector<std::string> const & argumentos,
     return -2;
   }
   return comprobar_archivos(argumentos, inputFile, outputFile);
-};
+}
 
 int n_params(int argc){
   if (argc != 4) {
@@ -122,6 +122,58 @@ std::vector<particula> crear_particulas(std::ifstream const & inputFile) {
   }
   comprobar_fallos_cabecera(particulas, n_particulas_int);
   return particulas;
+}
+
+void particula::inicializar_densidad_aceleracion(){
+  p = 0;
+  ax = constantes::g_const[0];
+  ay = constantes::g_const[1];
+  az = constantes::g_const[2];
+}
+
+void particula::interactuar_densidad(particula &part, double h, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
+  double const distancia_cuadrado = pow(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2), 0.5);
+  if(pow(distancia_cuadrado, 2)< pow(h, 2)){
+    p += pow(pow(h, 2) - pow(distancia_cuadrado, 2), 3);
+  }
+  if(sumar_a_ambas_part){
+    part.p += pow(pow(h, 2) - pow(distancia_cuadrado, 2), 3);
+  }
+}
+
+void particula::interactuar_aceleracion(particula &part, double h, double m, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
+  double const distancia = pow(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2), 0.5);
+  if (pow(distancia, 2) < pow(h, 2)) {
+    double const d = pow(std::max(pow(distancia, 2), pow(10, -12)), 0.5);
+    std::vector<double> d_a;
+    d_a.push_back((((px - part.px) * ((15 * 3 * constantes::ps_const * m * pow(h - d, 2) *
+                                       (p + part.p - 2 * constantes::p_const)) /
+                                      (std::numbers::pi * pow(h, 6) * 2 * d))) +
+                   (part.vx - vx) * (45 / (std::numbers::pi * pow(h, 6) * m * constantes::u_const))) /
+                  (p * part.p));
+    d_a.push_back((((py - part.py) * ((15 * 3 * constantes::ps_const * m * pow(h - d, 2) *
+                                       (p + part.p - 2 * constantes::p_const)) /
+                                      (std::numbers::pi * pow(h, 6) * 2 * d))) +
+                   (part.vy - vy) * (45 / (std::numbers::pi * pow(h, 6) * m * constantes::u_const))) /
+                  (p * part.p));
+    d_a.push_back((((pz - part.pz) * ((15 * 3 * constantes::ps_const * m * pow(h - d, 2) *
+                                       (p + part.p - 2 * constantes::p_const)) /
+                                      (std::numbers::pi * pow(h, 6) * 2 * d))) +
+                   (part.vz - vz) * (45 / (std::numbers::pi * pow(h, 6) * m * constantes::u_const))) /
+                  (p * part.p));
+    ax += d_a[0];
+    ay += d_a[1];
+    az += d_a[2];
+    if (sumar_a_ambas_part) {
+      part.ax -= d_a[0];
+      part.ay -= d_a[1];
+      part.az -= d_a[2];
+    }
+  }
+}
+
+void particula::transformar_densidad(double h, double m){
+  p = (p + pow(h, 6)) *(315/(64 * std::numbers::pi * pow(h, 9))) * m;
 }
 
 void particula::colisionLimiteEjeX(bool lim_inf) {
