@@ -87,12 +87,12 @@ void comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_
   int const error    = -5;
   if (n_particulas_int <= 0) {
     std::cerr << "Invalid number of particles: " << n_particulas_int<< ".\n";
-    exit(error);
+    std::exit(error);
   }
   if (longitud != n_particulas_int) {
     std::cerr << "Number of particles mismatch. Header: " << n_particulas_int
               << ", Found: " << longitud << ".\n";
-    exit(error);
+    std::exit(error);
   }
 }
 
