@@ -133,11 +133,11 @@ void particula::inicializar_densidad_aceleracion(){
 
 void particula::interactuar_densidad(particula &part, double h, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
   double const distancia_cuadrado = pow(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2), 0.5);
-  if(pow(distancia_cuadrado, 2)< pow(h, 2)){
+  if(pow(distancia_cuadrado, 2) < pow(h, 2)){
     p += pow(pow(h, 2) - pow(distancia_cuadrado, 2), 3);
-  }
-  if(sumar_a_ambas_part){
-    part.p += pow(pow(h, 2) - pow(distancia_cuadrado, 2), 3);
+    if(sumar_a_ambas_part){
+      part.p += pow(pow(h, 2) - pow(distancia_cuadrado, 2), 3);
+    }
   }
 }
 
@@ -149,17 +149,17 @@ void particula::interactuar_aceleracion(particula &part, double h, double m, boo
     d_a.push_back((((px - part.px) * ((15 * 3 * constantes::ps_const * m * pow(h - d, 2) *
                                        (p + part.p - 2 * constantes::p_const)) /
                                       (std::numbers::pi * pow(h, 6) * 2 * d))) +
-                   (part.vx - vx) * (45 / (std::numbers::pi * pow(h, 6) * m * constantes::u_const))) /
+                   (part.vx - vx) * ((45 / (std::numbers::pi * pow(h, 6)) * m * constantes::u_const))) /
                   (p * part.p));
     d_a.push_back((((py - part.py) * ((15 * 3 * constantes::ps_const * m * pow(h - d, 2) *
                                        (p + part.p - 2 * constantes::p_const)) /
                                       (std::numbers::pi * pow(h, 6) * 2 * d))) +
-                   (part.vy - vy) * (45 / (std::numbers::pi * pow(h, 6) * m * constantes::u_const))) /
+                   (part.vy - vy) * ((45 / (std::numbers::pi * pow(h, 6)) * m * constantes::u_const))) /
                   (p * part.p));
     d_a.push_back((((pz - part.pz) * ((15 * 3 * constantes::ps_const * m * pow(h - d, 2) *
                                        (p + part.p - 2 * constantes::p_const)) /
                                       (std::numbers::pi * pow(h, 6) * 2 * d))) +
-                   (part.vz - vz) * (45 / (std::numbers::pi * pow(h, 6) * m * constantes::u_const))) /
+                   (part.vz - vz) * ((45 / (std::numbers::pi * pow(h, 6)) * m * constantes::u_const))) /
                   (p * part.p));
     ax += d_a[0];
     ay += d_a[1];

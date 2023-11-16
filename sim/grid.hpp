@@ -117,6 +117,9 @@ class grid {
     void almacenar_resultados(std::ofstream & outputFile);
     void bucle_colisiones(int num_bloque, bool lim_inf, int dimension);
 
+
+    void imprimir_output();
+
     particula acceder_bloque_part(int b, int p) { return bloques[b].getParticulas()[p]; }
 
     [[nodiscard]] std::vector<int> obtener_contiguos(int n) const {
@@ -127,9 +130,9 @@ class grid {
           for (int k = -1; k < 2; ++k) {
             if ((i != 0 || j != 0 || k != 0) &&
                 (0 <= coordenadas[0] + i && coordenadas[0] + i < nx && 0 <= coordenadas[1] + j &&
-                 coordenadas[1] + j < ny && 0 <= coordenadas[1] + k && coordenadas[1] + k < nz)) {
+                 coordenadas[1] + j < ny && 0 <= coordenadas[2] + k && coordenadas[2] + k < nz)) {
               bloques_contiguos.push_back(
-                  obtener_indice(coordenadas[0] + i, coordenadas[1] + j, coordenadas[1] + k));
+                  obtener_indice(coordenadas[0] + i, coordenadas[1] + j, coordenadas[2] + k));
             }
           }
         }
@@ -140,8 +143,8 @@ class grid {
     [[nodiscard]] std::vector<int> obtener_coordenadas(int n) const {
       std::vector<int> coordenadas;
       coordenadas.push_back(n / (nz * ny));
-      coordenadas.push_back((n % (nz * ny) / nz));
-      coordenadas.push_back((n % (nz * ny) % nz));
+      coordenadas.push_back((n % (nz * ny)) / nz);
+      coordenadas.push_back((n % (nz * ny)) % nz);
       return coordenadas;
     }
 

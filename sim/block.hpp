@@ -46,13 +46,11 @@ public:
 
     std::vector<particula> devolver_particulas(){
       std::vector<particula> devolver;
-      for(int p = particulas.size()-1; 0<=p; p--){
-        if (!p_bloque(particulas[p])){
-
-             devolver.push_back(particulas[p]);
-             //particulas.erase(particulas.begin() + p);
-             this->particulas = eliminar(particulas, p);
-
+      for(int p_dat = static_cast<int>(particulas.size()-1); 0<=p_dat; p_dat--){
+        if (!p_bloque(particulas[p_dat])){
+           devolver.push_back(particulas[p_dat]);
+           //particulas.erase(particulas.begin() + p);
+           this->particulas = eliminar(particulas, p_dat);
         }
       }
       return devolver;
@@ -67,11 +65,12 @@ public:
     }
 
     //espero poder elinar esta funcion
-    std::vector<particula> eliminar(std::vector<particula> v, int e){
+    static std::vector<particula> eliminar(std::vector<particula> v, int e){
       std::vector<particula> eliminado;
       for(unsigned long i = 0; i<v.size(); i++) {
-        if(e != static_cast<int>(i))
+        if(e != static_cast<int>(i)) {
           eliminado.push_back(v[i]);
+        }
       }
       return eliminado;
     }
@@ -81,7 +80,7 @@ public:
     }
 
     [[nodiscard]] bool p_bloque(particula p) const {
-      return px<=p.getpx()&&p.getpx()<px+sx&&py<=p.getpy()&&p.getpy()<py+sy&&pz<=p.getpz()&&p.getpz()<pz+sz;
+      return ((px <= p.getpx()) && (p.getpx() < (px + sx)) && (py <= p.getpy()) && (p.getpy() < (py + sy)) && (pz <= p.getpz()) && (p.getpz() < (pz+sz)));
     }
 
     [[nodiscard]] double getpz() const{
