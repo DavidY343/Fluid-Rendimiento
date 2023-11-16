@@ -87,12 +87,12 @@ void comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_
   int const error    = -5;
   if (n_particulas_int <= 0) {
     std::cerr << "Invalid number of particles: " << n_particulas_int<< ".\n";
-    exit(error);
+    std::exit(error);
   }
   if (longitud != n_particulas_int) {
     std::cerr << "Number of particles mismatch. Header: " << n_particulas_int
               << ", Found: " << longitud << ".\n";
-    exit(error);
+    std::exit(error);
   }
 }
 
@@ -143,42 +143,51 @@ void particula::interactuar_densidad(particula &part, double h, bool sumar_a_amb
 
 void particula::interactuar_aceleracion(particula &part, double h, double m, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
   double const distancia = pow(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2), 0.5);
+  std::vector<int> const r_num = {15, 6, 45};
   if (pow(distancia, 2) < pow(h, 2)) {
-    double const d = pow(std::max(pow(distancia, 2), pow(10, -12)), 0.5);
+    double const dist = pow(std::max(pow(distancia, 2), pow(10, -12)), 0.5);
     std::vector<double> d_a;
-    d_a.push_back((((px - part.px) * ((15 * 3 * constantes::ps_const * m * pow(h - d, 2) *
+    d_a.push_back((((px - part.px) * ((r_num[0] * 3 * constantes::ps_const * m * pow(h - dist, 2) *
                                        (p + part.p - 2 * constantes::p_const)) /
-                                      (std::numbers::pi * pow(h, 6) * 2 * d))) +
-                   (part.vx - vx) * ((45 / (std::numbers::pi * pow(h, 6)) * m * constantes::u_const))) /
+                                      (std::numbers::pi * pow(h, r_num[1]) * 2 * dist))) +
+                   (part.vx - vx) * ((r_num[2] / (std::numbers::pi * pow(h, r_num[1])) * m * constantes::u_const))) /
                   (p * part.p));
-    d_a.push_back((((py - part.py) * ((15 * 3 * constantes::ps_const * m * pow(h - d, 2) *
+    d_a.push_back((((py - part.py) * ((r_num[0] * 3 * constantes::ps_const * m * pow(h - dist, 2) *
                                        (p + part.p - 2 * constantes::p_const)) /
-                                      (std::numbers::pi * pow(h, 6) * 2 * d))) +
-                   (part.vy - vy) * ((45 / (std::numbers::pi * pow(h, 6)) * m * constantes::u_const))) /
+                                      (std::numbers::pi * pow(h, r_num[1]) * 2 * dist))) +
+                   (part.vy - vy) * ((r_num[2] / (std::numbers::pi * pow(h, r_num[1])) * m * constantes::u_const))) /
                   (p * part.p));
-    d_a.push_back((((pz - part.pz) * ((15 * 3 * constantes::ps_const * m * pow(h - d, 2) *
+    d_a.push_back((((pz - part.pz) * ((r_num[0] * 3 * constantes::ps_const * m * pow(h - dist, 2) *
                                        (p + part.p - 2 * constantes::p_const)) /
-                                      (std::numbers::pi * pow(h, 6) * 2 * d))) +
-                   (part.vz - vz) * ((45 / (std::numbers::pi * pow(h, 6)) * m * constantes::u_const))) /
+                                      (std::numbers::pi * pow(h, r_num[1]) * 2 * dist))) +
+                   (part.vz - vz) * ((r_num[2] / (std::numbers::pi * pow(h, r_num[1])) * m * constantes::u_const))) /
                   (p * part.p));
-    ax += d_a[0];
-    ay += d_a[1];
-    az += d_a[2];
-    if (sumar_a_ambas_part) {
-      part.ax -= d_a[0];
-      part.ay -= d_a[1];
-      part.az -= d_a[2];
-    }
+    interactuar_aceleracion2(part, d_a, sumar_a_ambas_part);
   }
 }
 
+void particula::interactuar_aceleracion2(particula &part, std::vector<double> & d_a, bool sumar_a_ambas_part)
+{
+  ax += d_a[0];
+  ay += d_a[1];
+  az += d_a[2];
+  if (sumar_a_ambas_part) {
+    part.ax -= d_a[0];
+    part.ay -= d_a[1];
+    part.az -= d_a[2];
+  }
+}
 void particula::transformar_densidad(double h, double m){
-  p = (p + pow(h, 6)) *(315/(64 * std::numbers::pi * pow(h, 9))) * m;
+  int const pow_6 = 6;
+  int const d_315 = 315;
+  int const d_64 = 64;
+  int const d_9 = 9;
+  p = (p + pow(h, pow_6)) *(d_315/(d_64 * std::numbers::pi * pow(h, d_9))) * m;
 }
 
 void particula::colisionLimiteEjeX(bool lim_inf) {
   double const min_value = 0.0000000001;
-  double new_x = getpx() + gethvx() * constantes::t_const;
+  double const new_x = getpx() + gethvx() * constantes::t_const;
   if (lim_inf) {
     double const difLimX = constantes::dp_const - (new_x - constantes::bmin_const[0]);
     if (difLimX > min_value) {
@@ -195,7 +204,7 @@ void particula::colisionLimiteEjeX(bool lim_inf) {
 
 void particula::colisionLimiteEjeY(bool lim_inf) {
   double const min_value = 0.0000000001;
-  double new_y = getpy() + gethvy() * constantes::t_const;
+  double const new_y = getpy() + gethvy() * constantes::t_const;
   if (lim_inf) {
     double const difLimY = constantes::dp_const - (new_y - constantes::bmin_const[1]);
     if (difLimY > min_value) {
@@ -212,7 +221,7 @@ void particula::colisionLimiteEjeY(bool lim_inf) {
 
 void particula::colisionLimiteEjeZ(bool lim_inf) {
   double const min_value = 0.0000000001;
-  double new_z = getpz() + gethvz() * constantes::t_const;
+  double const new_z = getpz() + gethvz() * constantes::t_const;
   if (lim_inf) {
     double const difLimZ = constantes::dp_const - (new_z - constantes::bmin_const[2]);
     if (difLimZ > min_value) {
