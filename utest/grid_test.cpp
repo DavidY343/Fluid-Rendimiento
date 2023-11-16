@@ -2,10 +2,10 @@
 // Created by manuel on 10/11/23.
 //
 
-#include <vector>
-#include "gtest/gtest.h"
 #include "sim/grid.cpp"
 
+#include "gtest/gtest.h"
+#include <vector>
 
 TEST(MiFuncionTest, ObtenerIndice) {
   std::vector<double> const vector = {0.00011779, 0.00830882};

@@ -5,7 +5,6 @@
 #include "sim/progargs.hpp"
 
 #include "gtest/gtest.h"
-#include <cstdlib>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -65,23 +64,73 @@ TEST(ComprobarArchivosTest, ErrorAlAbrirOutputFile) {
   EXPECT_EQ(-4, comprobar_params(args, inputFile, outputFile));
 }
 
-// PROBLEMA CON ESTE TEST, PUEDE  QUE HAYA QUE CAMBIAR EL EXIT, NO SER PUEDEN HACER TESTS PORQUE
-// TERMINA CON EL FLUJO DEL PROGRAMA
+// EN ESTOS TRES HABÍA QUE CAMBIAR LO DEL ppm
 TEST(ComprobarFallosCabeceraTest, InvalidNumberOfParticles) {
   // Caso de prueba: Número de partículas no válido
   std::ifstream const inputFile("small.fld",
                                 std::ios::binary);  // Creamos un objeto inputFile para lectura
-  std::vector<particula> const particulas = crear_particulas(inputFile);  // Agregamos punto y coma
+  auto ppm = static_cast<double>(
+      read_binary_value<float>((std::istream &) inputFile));
 
-  int const n_particulas_int = -2;  // Número de partículas no válido
+  std::cout << "ppm es " << ppm << "\n";
 
-  // Capturamos la salida estándar para verificar el mensaje de error
+  std::vector<particula> const particulas = crear_particulas(inputFile);
+
+  int const n_particulas_int = 0;  // Número de partículas no válido
+
+  ASSERT_EXIT(
+      {
+        // Llamamos a la función con un valor de partículas no válido
+        comprobar_fallos_cabecera(particulas, n_particulas_int);
+      },
+      ::testing::ExitedWithCode(256-5), // Código de salida esperado
+      "Invalid number of particles: 0."
+  );
+}
+
+TEST(ComprobarFallosCabeceraDeathTest2, InvalidNumberOfParticles) {
+  // Caso de prueba: Número de partículas diferente al de la cabecera
+  std::ifstream const inputFile("small.fld",
+                                std::ios::binary);  // Creamos un objeto inputFile para lectura
+  auto ppm = static_cast<double>(
+      read_binary_value<float>((std::istream &) inputFile));
+
+  std::cout << "ppm es " << ppm << "\n";
+
+  std::vector<particula> const particulas = crear_particulas(inputFile);
+
+  int const n_particulas_int = 4799;  // Número de partículas no válido
+
+  ASSERT_EXIT(
+      {
+        // Llamamos a la función con un valor de partículas no válido
+        comprobar_fallos_cabecera(particulas, n_particulas_int);
+      },
+      ::testing::ExitedWithCode(256-5), // Código de salida esperado
+      "Number of particles mismatch. Header: 4799, Found: 4800."
+  );
+}
+
+TEST(ComprobarFallosCabeceraCorrecto, NumeroValido){
+  // Caso de prueba: Numero de particulas creadas igual al de la cabecera
+  std::ifstream const inputFile("small.fld",
+                                std::ios::binary);  // Creamos un objeto inputFile para lectura
+  auto ppm = static_cast<double>(
+      read_binary_value<float>((std::istream &) inputFile));
+
+  std::cout << "ppm es " << ppm << "\n";
+
+  std::vector<particula> const particulas = crear_particulas(inputFile);
+
+  int const n_particulas_int = 4800;  // Número de partículas correcto
+
+  // Capturar la salida estándar para verificar el mensaje de error
   testing::internal::CaptureStderr();
 
-  // Llamamos a la función con un valor de partículas no válido
+  // Llamamos a la función con un valor de partículas válido
   comprobar_fallos_cabecera(particulas, n_particulas_int);
 
-  // Verificamos el mensaje de error
+  // Verificar que la salida estándar esté vacía (sin mensaje de error)
   std::string const output = testing::internal::GetCapturedStderr();
-  EXPECT_EQ(output, "Invalid number of particles: -2.\n");
+  EXPECT_TRUE(output.empty());
 }
