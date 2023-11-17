@@ -65,12 +65,11 @@ TEST(ComprobarArchivosTest, ErrorAlAbrirOutputFile) {
 }
 
 // EN ESTOS TRES HABÍA QUE CAMBIAR LO DEL ppm
-TEST(ComprobarFallosCabeceraTest, InvalidNumberOfParticles) {
+TEST(ComprobarFallosCabeceraTest, InvalidNumberOfParticles2) {
   // Caso de prueba: Número de partículas no válido
   std::ifstream const inputFile("small.fld",
                                 std::ios::binary);  // Creamos un objeto inputFile para lectura
-  auto ppm = static_cast<double>(
-      read_binary_value<float>((std::istream &) inputFile));
+  auto ppm = static_cast<double>(read_binary_value<float>((std::istream &) inputFile));
 
   std::cout << "ppm es " << ppm << "\n";
 
@@ -83,17 +82,15 @@ TEST(ComprobarFallosCabeceraTest, InvalidNumberOfParticles) {
         // Llamamos a la función con un valor de partículas no válido
         comprobar_fallos_cabecera(particulas, n_particulas_int);
       },
-      ::testing::ExitedWithCode(256-5), // Código de salida esperado
-      "Invalid number of particles: 0."
-  );
+      ::testing::ExitedWithCode(256 - 5),  // Código de salida esperado
+      "Invalid number of particles: 0.");
 }
 
-TEST(ComprobarFallosCabeceraDeathTest2, InvalidNumberOfParticles) {
+TEST(ComprobarFallosCabecera, InvalidNumberOfParticles) {
   // Caso de prueba: Número de partículas diferente al de la cabecera
   std::ifstream const inputFile("small.fld",
                                 std::ios::binary);  // Creamos un objeto inputFile para lectura
-  auto ppm = static_cast<double>(
-      read_binary_value<float>((std::istream &) inputFile));
+  auto ppm = static_cast<double>(read_binary_value<float>((std::istream &) inputFile));
 
   std::cout << "ppm es " << ppm << "\n";
 
@@ -106,17 +103,15 @@ TEST(ComprobarFallosCabeceraDeathTest2, InvalidNumberOfParticles) {
         // Llamamos a la función con un valor de partículas no válido
         comprobar_fallos_cabecera(particulas, n_particulas_int);
       },
-      ::testing::ExitedWithCode(256-5), // Código de salida esperado
-      "Number of particles mismatch. Header: 4799, Found: 4800."
-  );
+      ::testing::ExitedWithCode(256 - 5),  // Código de salida esperado
+      "Number of particles mismatch. Header: 4799, Found: 4800.");
 }
 
-TEST(ComprobarFallosCabeceraCorrecto, NumeroValido){
+TEST(ComprobarFallosCabecera, NumeroValido) {
   // Caso de prueba: Numero de particulas creadas igual al de la cabecera
   std::ifstream const inputFile("small.fld",
                                 std::ios::binary);  // Creamos un objeto inputFile para lectura
-  auto ppm = static_cast<double>(
-      read_binary_value<float>((std::istream &) inputFile));
+  auto ppm = static_cast<double>(read_binary_value<float>((std::istream &) inputFile));
 
   std::cout << "ppm es " << ppm << "\n";
 
