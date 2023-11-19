@@ -201,19 +201,18 @@ void particula::interactuar_aceleracion2(particula &part, std::vector<double> & 
 void particula::transformar_densidad(double h, double m){
   int const pow_6 = 6;
   int const d_315 = 315;
-  int const d_64 = 64;
-  int const d_9 = 9;
-  p = (p + pow(h, pow_6)) *(d_315/(d_64 * std::numbers::pi * pow(h, d_9))) * m;
+  int const d_64  = 64;
+  int const d_9   = 9;
+  p               = (p + pow(h, pow_6)) * (d_315 / (d_64 * std::numbers::pi * pow(h, d_9))) * m;
 }
 
 void particula::colisionLimiteEjeX(bool lim_inf) {
   double const min_value = 0.0000000001;
-  double const new_x = getpx() + gethvx() * constantes::t_const;
+  double const new_x     = getpx() + gethvx() * constantes::t_const;
   if (lim_inf) {
     double const difLimX = constantes::dp_const - (new_x - constantes::bmin_const[0]);
     if (difLimX > min_value) {
-      setax(getax() +
-            (constantes::sc_const * difLimX - constantes::dv_const * getvx()));
+      setax(getax() + (constantes::sc_const * difLimX - constantes::dv_const * getvx()));
     }
   } else {
     double const difLimX = constantes::dp_const - (constantes::bmax_const[0] - new_x);
@@ -225,12 +224,11 @@ void particula::colisionLimiteEjeX(bool lim_inf) {
 
 void particula::colisionLimiteEjeY(bool lim_inf) {
   double const min_value = 0.0000000001;
-  double const new_y = getpy() + gethvy() * constantes::t_const;
+  double const new_y     = getpy() + gethvy() * constantes::t_const;
   if (lim_inf) {
     double const difLimY = constantes::dp_const - (new_y - constantes::bmin_const[1]);
     if (difLimY > min_value) {
-      setay(getay() +
-            (constantes::sc_const * difLimY - constantes::dv_const * getvy()));
+      setay(getay() + (constantes::sc_const * difLimY - constantes::dv_const * getvy()));
     }
   } else {
     double const difLimY = constantes::dp_const - (constantes::bmax_const[1] - new_y);
@@ -242,12 +240,11 @@ void particula::colisionLimiteEjeY(bool lim_inf) {
 
 void particula::colisionLimiteEjeZ(bool lim_inf) {
   double const min_value = 0.0000000001;
-  double const new_z = getpz() + gethvz() * constantes::t_const;
+  double const new_z     = getpz() + gethvz() * constantes::t_const;
   if (lim_inf) {
     double const difLimZ = constantes::dp_const - (new_z - constantes::bmin_const[2]);
     if (difLimZ > min_value) {
-      setaz(getaz() +
-            (constantes::sc_const * difLimZ - constantes::dv_const * getvz()));
+      setaz(getaz() + (constantes::sc_const * difLimZ - constantes::dv_const * getvz()));
     }
   } else {
     double const difLimZ = constantes::dp_const - (constantes::bmax_const[2] - new_z);
@@ -288,18 +285,15 @@ void particula::limiteRecintoz(bool lim_inf) {
 }
 
 void particula::actualizarMovimiento() {
-  setpx(getpx() + gethvx() * constantes::t_const +
-        getax() * pow(constantes::t_const, 2));
+  setpx(getpx() + gethvx() * constantes::t_const + getax() * pow(constantes::t_const, 2));
   setvx(gethvx() + (getax() * constantes::t_const) / 2);
   sethvx(gethvx() + getax() * constantes::t_const);
 
-  setpy(getpy() + gethvy() * constantes::t_const +
-        getay() * pow(constantes::t_const, 2));
+  setpy(getpy() + gethvy() * constantes::t_const + getay() * pow(constantes::t_const, 2));
   setvy(gethvy() + (getay() * constantes::t_const) / 2);
   sethvy(gethvy() + getay() * constantes::t_const);
 
-  setpz(getpz() + gethvz() * constantes::t_const +
-        getaz() * pow(constantes::t_const, 2));
+  setpz(getpz() + gethvz() * constantes::t_const + getaz() * pow(constantes::t_const, 2));
   setvz(gethvz() + (getaz() * constantes::t_const) / 2);
   sethvz(gethvz() + getaz() * constantes::t_const);
 }
