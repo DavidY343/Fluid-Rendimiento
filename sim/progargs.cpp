@@ -115,7 +115,7 @@ std::vector<particula> crear_particulas(std::ifstream const & inputFile) {
     auto vy_dat      = static_cast<double>(read_binary_value<float>((std::istream &) inputFile));
     auto vz_dat      = static_cast<double>(read_binary_value<float>((std::istream &) inputFile));
     if (inputFile.eof()) { break; }
-    particula const n_particula(id_dat, px_dat, py_dat, pz_dat, hvx, hvy, hvz, vy_dat, vx_dat,
+    particula const n_particula(id_dat, px_dat, py_dat, pz_dat, hvx, hvy, hvz, vx_dat, vy_dat,
                                 vz_dat);
     particulas.push_back(n_particula);
     ident++;
@@ -132,35 +132,56 @@ void particula::inicializar_densidad_aceleracion(){
 }
 
 void particula::interactuar_densidad(particula &part, double h, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
-  double const distancia_cuadrado = pow(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2), 0.5);
-  if(pow(distancia_cuadrado, 2) < pow(h, 2)){
-    p += pow(pow(h, 2) - pow(distancia_cuadrado, 2), 3);
+  //double const distancia_cuadrado = pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2);
+  double const distancia_cuadrado = calcularDistancia(part);
+  double incremento_densidad = 0;
+  double incremento_densidad2 = 0;
+  if(distancia_cuadrado < (h * h)){
+
+    incremento_densidad = pow((h * h - distancia_cuadrado), 3);
+    setp(getp() + incremento_densidad);
     if(sumar_a_ambas_part){
-      part.p += pow(pow(h, 2) - pow(distancia_cuadrado, 2), 3);
+      incremento_densidad2 = pow((h * h - distancia_cuadrado), 3);
+      part.setp(part.getp() + incremento_densidad2);
     }
   }
 }
 
+double particula::calcularDistancia(const particula &part) const {
+  double distancia = 0.0;
+
+  // Calcula la distancia euclidiana entre las dos partículas
+  double diff = getpx() - part.getpx();
+  distancia += diff * diff;
+  diff = getpy() - part.getpy();
+  distancia += diff * diff;
+  diff = getpz() - part.getpz();
+  distancia += diff * diff;
+
+  return distancia; // En realidad es el modulo al cuadrado
+}
+
 void particula::interactuar_aceleracion(particula &part, double h, double m, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
-  double const distancia = pow(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2), 0.5);
+  //double const distancia = sqrt(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2));
+  double const distancia_cuadrado = calcularDistancia(part);
   std::vector<int> const r_num = {15, 6, 45};
-  if (pow(distancia, 2) < pow(h, 2)) {
-    double const dist = pow(std::max(pow(distancia, 2), pow(10, -12)), 0.5);
+  if (distancia_cuadrado < pow(h, 2)) {
+    double const dist = sqrt(std::max(distancia_cuadrado, pow(10, -12)));
     std::vector<double> d_a;
     d_a.push_back((((px - part.px) * ((r_num[0] * 3 * constantes::ps_const * m * pow(h - dist, 2) *
                                        (p + part.p - 2 * constantes::p_const)) /
                                       (std::numbers::pi * pow(h, r_num[1]) * 2 * dist))) +
-                   (part.vx - vx) * ((r_num[2] / (std::numbers::pi * pow(h, r_num[1])) * m * constantes::u_const))) /
+                   (part.vx - vx) * ((r_num[2] / (std::numbers::pi * pow(h, r_num[1]))) * m * constantes::u_const)) /
                   (p * part.p));
     d_a.push_back((((py - part.py) * ((r_num[0] * 3 * constantes::ps_const * m * pow(h - dist, 2) *
                                        (p + part.p - 2 * constantes::p_const)) /
                                       (std::numbers::pi * pow(h, r_num[1]) * 2 * dist))) +
-                   (part.vy - vy) * ((r_num[2] / (std::numbers::pi * pow(h, r_num[1])) * m * constantes::u_const))) /
+                   (part.vy - vy) * ((r_num[2] / (std::numbers::pi * pow(h, r_num[1]))) * m * constantes::u_const)) /
                   (p * part.p));
     d_a.push_back((((pz - part.pz) * ((r_num[0] * 3 * constantes::ps_const * m * pow(h - dist, 2) *
                                        (p + part.p - 2 * constantes::p_const)) /
                                       (std::numbers::pi * pow(h, r_num[1]) * 2 * dist))) +
-                   (part.vz - vz) * ((r_num[2] / (std::numbers::pi * pow(h, r_num[1])) * m * constantes::u_const))) /
+                   (part.vz - vz) * ((r_num[2] / (std::numbers::pi * pow(h, r_num[1]))) * m * constantes::u_const)) /
                   (p * part.p));
     interactuar_aceleracion2(part, d_a, sumar_a_ambas_part);
   }

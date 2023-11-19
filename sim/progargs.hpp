@@ -29,7 +29,7 @@ class particula {
   public:
     // Constructor
     particula(int id, double px, double py, double pz, double hvx, double hvy, double hvz,
-              double vy, double vx, double vz)
+              double vx, double vy, double vz)
       : id(id), px(px), py(py), pz(pz), hvx(hvx), hvy(hvy), hvz(hvz), vx(vx), vy(vy), vz(vz) {    }
 
     // Constructor de copia
@@ -100,6 +100,7 @@ class particula {
     void limiteRecintox(bool lim_inf);
     void limiteRecintoy(bool lim_inf);
     void limiteRecintoz(bool lim_inf);
+    double calcularDistancia(const particula &part) const;
 
     void actualizarMovimiento();
 
@@ -155,6 +156,8 @@ class particula {
     void setay(double new_ay) { ay = new_ay; }
 
     void setaz(double new_az) { az = new_az; }
+
+    void setp(double new_p) { p = new_p; }
 
 private:
     int id;

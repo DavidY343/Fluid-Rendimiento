@@ -11,6 +11,7 @@
 #include <iostream>
 #include <tuple>
 #include <fstream>
+#include <iomanip>
 
 /*
 //TODO: pendiente eliminar
@@ -173,7 +174,7 @@ void grid::colisiones_particulas() {
       bucle_colisiones(i, coordenadas[1] == 0, 1);
     }
     if (coordenadas[2] == 0 || coordenadas[2] == getnz() - 1) {
-      bucle_colisiones(i, coordenadas[1] == 0, 2);
+      bucle_colisiones(i, coordenadas[2] == 0, 2);
     }
   }
 }
@@ -210,7 +211,7 @@ void grid::movimiento_particulas(){
       bucle_limites(i, coordenadas[1] == 0, 1);
     }
     if (coordenadas[2] == 0 || coordenadas[2] == getnz() - 1) {
-      bucle_limites(i, coordenadas[1] == 0, 2);
+      bucle_limites(i, coordenadas[2] == 0, 2);
     }
   }
 }
@@ -331,7 +332,8 @@ void grid::almacenar_resultados(std::ofstream & outputFile) {
 //Metodo para imprimir todas las particulas.
 void grid::imprimir_output() {
   std::ofstream outputFile("archivo.out");
-
+  int precision = 30;  // ajusta según tus necesidades
+  outputFile << std::fixed << std::setprecision(precision);
   if (outputFile.is_open()) {
     for (int i = 0; i < getnx() * getny() * getnz(); i++) {
         outputFile << "\n\nBloque " << i << ": "<< bloques[i].getParticulas().size()<<" particulas: \n";
