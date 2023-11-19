@@ -131,8 +131,7 @@ void particula::inicializar_densidad_aceleracion(){
   az = constantes::g_const[2];
 }
 
-void particula::interactuar_densidad(particula &part, double h, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
-  //double const distancia_cuadrado = pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2);
+void particula::interactuar_densidad(particula &part, double h, bool sumar_a_ambas){
   double const distancia_cuadrado = calcularDistancia(part);
   double incremento_densidad = 0;
   double incremento_densidad2 = 0;
@@ -140,7 +139,7 @@ void particula::interactuar_densidad(particula &part, double h, bool sumar_a_amb
 
     incremento_densidad = pow((h * h - distancia_cuadrado), 3);
     setp(getp() + incremento_densidad);
-    if(sumar_a_ambas_part){
+    if(sumar_a_ambas){
       incremento_densidad2 = pow((h * h - distancia_cuadrado), 3);
       part.setp(part.getp() + incremento_densidad2);
     }
@@ -161,38 +160,46 @@ double particula::calcularDistancia(const particula &part) const {
   return distancia; // En realidad es el modulo al cuadrado
 }
 
-void particula::interactuar_aceleracion(particula &part, double h, double m, bool sumar_a_ambas_part){  //hay q hacerlo sin tener q pasar h como constante, q pereza
-  //double const distancia = sqrt(pow(this->px - part.px, 2) + pow(this->py - part.py, 2) + pow(this->pz - part.pz, 2));
+void particula::interactuar_aceleracion(particula &part, double h, double m, bool sumar_a_ambas){
   double const distancia_cuadrado = calcularDistancia(part);
   std::vector<int> const r_num = {15, 6, 45};
   if (distancia_cuadrado < pow(h, 2)) {
     double const dist = sqrt(std::max(distancia_cuadrado, pow(10, -12)));
-    std::vector<double> d_a;
-    d_a.push_back((((px - part.px) * ((r_num[0] * 3 * constantes::ps_const * m * pow(h - dist, 2) *
-                                       (p + part.p - 2 * constantes::p_const)) /
-                                      (std::numbers::pi * pow(h, r_num[1]) * 2 * dist))) +
-                   (part.vx - vx) * ((r_num[2] / (std::numbers::pi * pow(h, r_num[1]))) * m * constantes::u_const)) /
-                  (p * part.p));
-    d_a.push_back((((py - part.py) * ((r_num[0] * 3 * constantes::ps_const * m * pow(h - dist, 2) *
-                                       (p + part.p - 2 * constantes::p_const)) /
-                                      (std::numbers::pi * pow(h, r_num[1]) * 2 * dist))) +
-                   (part.vy - vy) * ((r_num[2] / (std::numbers::pi * pow(h, r_num[1]))) * m * constantes::u_const)) /
-                  (p * part.p));
-    d_a.push_back((((pz - part.pz) * ((r_num[0] * 3 * constantes::ps_const * m * pow(h - dist, 2) *
-                                       (p + part.p - 2 * constantes::p_const)) /
-                                      (std::numbers::pi * pow(h, r_num[1]) * 2 * dist))) +
-                   (part.vz - vz) * ((r_num[2] / (std::numbers::pi * pow(h, r_num[1]))) * m * constantes::u_const)) /
-                  (p * part.p));
-    interactuar_aceleracion2(part, d_a, sumar_a_ambas_part);
+    std::vector<double> d_a = calcular_d_a(part, h, dist, m);
+    interactuar_aceleracion2(part, d_a, sumar_a_ambas);
   }
 }
 
-void particula::interactuar_aceleracion2(particula &part, std::vector<double> & d_a, bool sumar_a_ambas_part)
+double particula::calcular_factor_aceleracion(double h, double dist, double m, const particula &part) {
+  std::vector<int> const r_num = {15, 6};
+  return (r_num[0] / (std::numbers::pi * pow(h, r_num[1]))) *
+         ((3 * m * constantes::ps_const) / 2) * ((pow((h - dist), 2)) / dist) *
+         (getp() + part.getp() - 2 * constantes::p_const);
+}
+
+double particula::calcular_factor_v(double h, double m){
+  std::vector<int> const r_num = {45, 6};
+  return (r_num[0] / (std::numbers::pi * pow(h, r_num[1]))) * constantes::u_const * m;
+}
+
+std::vector<double> particula::calcular_d_a(const particula &part, double h, double dist, double m) {
+  double factor_aceleracion = calcular_factor_aceleracion(h, dist, m, part);
+  double factor_v = calcular_factor_v(h, m);
+
+  std::vector<double> d_a = {
+    (((getpx() - part.getpx()) * factor_aceleracion + (part.getvx() - getvx()) * factor_v) / (getp() * part.getp())),
+    (((getpy() - part.getpy()) * factor_aceleracion + (part.getvy() - getvy()) * factor_v) / (getp() * part.getp())),
+    (((getpz() - part.getpz()) * factor_aceleracion + (part.getvz() - getvz()) * factor_v) / (getp() * part.getp()))
+  };
+  return d_a;
+}
+
+void particula::interactuar_aceleracion2(particula &part, std::vector<double> & d_a, bool sumar_a_ambas)
 {
   ax += d_a[0];
   ay += d_a[1];
   az += d_a[2];
-  if (sumar_a_ambas_part) {
+  if (sumar_a_ambas) {
     part.ax -= d_a[0];
     part.ay -= d_a[1];
     part.az -= d_a[2];

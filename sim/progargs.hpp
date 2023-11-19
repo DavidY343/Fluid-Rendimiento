@@ -88,12 +88,14 @@ class particula {
       cout<<"particula con id:"<<id<<" en posicion:("<<px<<", "<<py<<", "<<pz<<")\n";
     }
 
-    void interactuar_densidad(particula &part, double h, bool sumar_a_ambas_part);
+    void interactuar_densidad(particula &part, double h, bool sumar_a_ambas);
 
-    void interactuar_aceleracion(particula &part, double h, double m, bool sumar_a_ambas_part);
-    void interactuar_aceleracion2(particula &part, std::vector<double> & d_a, bool sumar_a_ambas_part);
+    void interactuar_aceleracion(particula &part, double h, double m, bool sumar_a_ambas);
+    void interactuar_aceleracion2(particula &part, std::vector<double> & d_a, bool sumar_a_ambas);
     void transformar_densidad(double h, double m);
-
+    double calcular_factor_aceleracion(double h, double dist, double m, const particula & part);
+    double calcular_factor_v(double h, double m);
+    std::vector<double> calcular_d_a(const particula &part, double h, double dist, double m);
     void colisionLimiteEjeX(bool lim_inf);
     void colisionLimiteEjeY(bool lim_inf);
     void colisionLimiteEjeZ(bool lim_inf);
