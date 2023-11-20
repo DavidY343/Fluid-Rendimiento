@@ -32,11 +32,6 @@ class grid {
           }
         }
       }
-      /* TODO:ver si este comentario se puede eliminar o hay q echar el ojo a algo
-       * este bucle no se puede dejar asi, pq luego se recorren todos los
-      bloques para ver si las particulas estan bien colocadas
-      tb hay q ver como gestionar las particulas con coordenadas fuera de la malla
-      */
       for (auto const & particula : particulas) {
         recolocar_particula(particula);
       }
@@ -84,28 +79,10 @@ class grid {
     // Destructor
     ~grid() = default;
 
-    void simular() {
-      // esto lo use para hacer pruebas pero se puede quitar
-      //localizar_particulas();
+    void simular();
 
-      // 4.3.1
-      reposicionar_particulas();
-
-      // 4.3.2
-      calcular_aceleraciones();
-
-      // 4.3.3 y 4.3.4 y 4.3.5
-      colisiones_particulas();
-
-      movimiento_particulas();
-    }
-
-    //TODO: pendiente eliminar
-    //void localizar_particulas();
     void reposicionar_particulas();
     void recolocar_particula(const particula &part);
-
-    void calcular_aceleraciones();
     void inicializar_densidades();
     void calcular_densidades();
     void transformar_densidades();
@@ -114,40 +91,15 @@ class grid {
     void colisiones_particulas();
     void movimiento_particulas();
     void bucle_limites(int num_bloque, bool lim_inf, int dimension);
-    void almacenar_resultados(std::ofstream & outputFile);
+    void almacenar_resultados(std::ofstream & outputFile, double ppm, std::vector<particula> const & part);
     void bucle_colisiones(int num_bloque, bool lim_inf, int dimension);
-
 
     void imprimir_output();
 
     particula acceder_bloque_part(int b, int p) { return bloques[b].getParticulas()[p]; }
 
-    [[nodiscard]] std::vector<int> obtener_contiguos(int n) const {
-      std::vector<int> bloques_contiguos;
-      std::vector<int> coordenadas = obtener_coordenadas(n);
-      for (int i = -1; i < 2; ++i) {
-        for (int j = -1; j < 2; ++j) {
-          for (int k = -1; k < 2; ++k) {
-            if ((i != 0 || j != 0 || k != 0) &&
-                (0 <= coordenadas[0] + i && coordenadas[0] + i < nx && 0 <= coordenadas[1] + j &&
-                 coordenadas[1] + j < ny && 0 <= coordenadas[2] + k && coordenadas[2] + k < nz)) {
-              bloques_contiguos.push_back(
-                  obtener_indice(coordenadas[0] + i, coordenadas[1] + j, coordenadas[2] + k));
-            }
-          }
-        }
-      }
-      return bloques_contiguos;
-    }
-
-    [[nodiscard]] std::vector<int> obtener_coordenadas(int n) const {
-      std::vector<int> coordenadas;
-      coordenadas.push_back(n / (nz * ny));
-      coordenadas.push_back((n % (nz * ny)) / nz);
-      coordenadas.push_back((n % (nz * ny)) % nz);
-      return coordenadas;
-    }
-
+    [[nodiscard]] std::vector<int> obtener_contiguos(int n) const ;
+    [[nodiscard]] std::vector<int> obtener_coordenadas(int n) const;
     [[nodiscard]] int obtener_indice(int i, int j, int k) const { return nz * ny * i + nz * j + k; }
 
     /*Getters*/
@@ -179,5 +131,5 @@ class grid {
 void escribir_datos_particulas(std::ofstream & outputFile, particula const & particula);
 std::tuple<float, float, float, float, float, float, float, float, float>
     convertirDatos(particula const & particula);
-void simulate(std::ifstream const & inputFile, int max_iteraciones, std::ofstream & outputFile);
+void init_simulation(std::ifstream const & inputFile, int max_iteraciones, std::ofstream & outputFile);
 #endif  // ARCOS_GRID_HPP
