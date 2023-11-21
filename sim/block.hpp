@@ -6,7 +6,6 @@
 #define ARCOS_BLOCK_H
 
 #include "progargs.hpp"
-
 #include <iostream>
 #include <vector>
 

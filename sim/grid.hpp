@@ -8,6 +8,7 @@
 #include "progargs.hpp"
 
 #include <iostream>
+#include <sstream>
 
 class grid {
   public:
@@ -83,6 +84,7 @@ class grid {
 
     void reposicionar_particulas();
     void recolocar_particula(const particula &part);
+
     void inicializar_densidades();
     void calcular_densidades();
     void transformar_densidades();
@@ -94,11 +96,11 @@ class grid {
     void almacenar_resultados(std::ofstream & outputFile, double ppm, std::vector<particula> const & part);
     void bucle_colisiones(int num_bloque, bool lim_inf, int dimension);
 
-    void imprimir_output();
+    void imprimir_output(const std::string&);
 
     particula acceder_bloque_part(int b, int p) { return bloques[b].getParticulas()[p]; }
 
-    [[nodiscard]] std::vector<int> obtener_contiguos(int n) const ;
+    [[nodiscard]] std::vector<int> obtener_contiguos(int n) const;
     [[nodiscard]] std::vector<int> obtener_coordenadas(int n) const;
     [[nodiscard]] int obtener_indice(int i, int j, int k) const { return nz * ny * i + nz * j + k; }
 

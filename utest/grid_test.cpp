@@ -24,7 +24,7 @@ TEST(MiFuncionTest, ObtenerCoordenadas) {
   grid const malla = grid(vector, particulas);
 
   std::vector<int> esperado = {0, 0, 0};
-  EXPECT_EQ(malla.obtener_coordenadas(0), esperado);
+  EXPECT_EQ(malla.obtener_coordenadas(1905), esperado);
 
   esperado = {3, 2, 1};
   EXPECT_EQ(malla.obtener_coordenadas(976), esperado);

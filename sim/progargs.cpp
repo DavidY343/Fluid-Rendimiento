@@ -84,6 +84,7 @@ T read_binary_value(std::istream & is) {
   is.read(as_writable_buffer(value), sizeof(value));
   return value;
 }
+
 //Comprobamos que los parametros que leemos de la cabecera estan bien
 void comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_particulas_int) {
   int const longitud = static_cast<int>(particulas.size());
@@ -136,16 +137,14 @@ void particula::inicializar_densidad_aceleracion() {
 }
 
 // Interactúa con otra partícula para actualizar la densidad
-void particula::interactuar_densidad(particula & part, double h, bool sumar_a_ambas) {
+void particula::interactuar_densidad(particula & part, double h) {
   double const distancia_cuadrado = calcularDistancia(part);
 
   if (distancia_cuadrado < (h * h)) {
     double const incremento_densidad = pow((h * h - distancia_cuadrado), 3);
     setp(getp() + incremento_densidad);
-    if (sumar_a_ambas) {
-      double const incremento_densidad2 = pow((h * h - distancia_cuadrado), 3);
-      part.setp(part.getp() + incremento_densidad2);
-    }
+    double const incremento_densidad2 = pow((h * h - distancia_cuadrado), 3);
+    part.setp(part.getp() + incremento_densidad2);
   }
 }
 
@@ -165,13 +164,13 @@ double particula::calcularDistancia(particula const & part) const {
 }
 
 // Interactúa con otra partícula para actualizar la aceleración
-void particula::interactuar_aceleracion(particula & part, double h, double m, bool sumar_a_ambas) {
+void particula::interactuar_aceleracion(particula & part, double h, double m) {
   double const distancia_cuadrado = calcularDistancia(part);
   std::vector<int> const r_num    = {15, 6, 45};
   if (distancia_cuadrado < pow(h, 2)) {
     double const dist       = sqrt(std::max(distancia_cuadrado, pow(10, -12)));
     std::vector<double> d_a = calcular_d_a(part, h, dist, m);
-    interactuar_aceleracion2(part, d_a, sumar_a_ambas);
+    interactuar_aceleracion2(part, d_a);
   }
 }
 
@@ -206,16 +205,13 @@ std::vector<double> particula::calcular_d_a(particula const & part, double h, do
 }
 
 // Actualiza la aceleración de la partícula basándose en la interacción con otra partícula
-void particula::interactuar_aceleracion2(particula & part, std::vector<double> & d_a,
-                                         bool sumar_a_ambas) {
+void particula::interactuar_aceleracion2(particula & part, std::vector<double> & d_a) {
   ax += d_a[0];
   ay += d_a[1];
   az += d_a[2];
-  if (sumar_a_ambas) {
-    part.ax -= d_a[0];
-    part.ay -= d_a[1];
-    part.az -= d_a[2];
-  }
+  part.ax -= d_a[0];
+  part.ay -= d_a[1];
+  part.az -= d_a[2];
 }
 
 // Transforma la densidad de la partícula según una fórmula específica

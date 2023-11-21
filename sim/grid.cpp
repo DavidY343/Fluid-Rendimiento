@@ -6,10 +6,8 @@
 //
 
 #include "grid.hpp"
-
 #include "progargs.cpp"
 #include "progargs.hpp"
-
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -89,16 +87,60 @@ void grid::recolocar_particula(particula const & part) {  // esta funcion se pue
 void grid::simular() {
   // 4.3.1
   reposicionar_particulas();
+
+  /*
+  std::stringstream nombre1;
+  nombre1<<"json/repos-base-"<<i<<".json";
+  imprimir_output(nombre1.str());
+   */
+
   // 4.3.2
   // inicializar densidades y aceleraciones, a pesar del nombre
   inicializar_densidades();
+
+  /*
+  std::stringstream nombre2;
+  nombre2<<"json/initacc-base-"<<i<<".json";
+  imprimir_output(nombre2.str());
+  */
+
+  // calcular densidades
   calcular_densidades();
+
+  /*
+  std::stringstream nombre3;
+  nombre3<<"json/densinc-base-"<<i<<".json";
+  imprimir_output(nombre3.str());
+   */
+
+  // transformar densidades
   transformar_densidades();
+
+  /*
+  std::stringstream nombre4;
+  nombre4<<"json/denstransf-base-"<<i<<".json";
+  imprimir_output(nombre4.str());
+   */
+
+  // calcular aceleraciones
   transferir_aceleraciones();
+
+  /*
+  std::stringstream nombre5;
+  nombre5<<"json/denstransf-base-"<<i<<".json";
+  imprimir_output(nombre5.str());
+   */
+
   // 4.3.3
   colisiones_particulas();
   // 4.3.4 y 4.3.5
   movimiento_particulas();
+
+  /*
+  std::stringstream nombre6;
+  nombre6<<"json/boundint-base-"<<i<<".json";
+  imprimir_output(nombre6.str());
+   */
 }
 
 // Inicializa las densidades y aceleraciones de las partículas en cada bloque de la malla
@@ -144,13 +186,15 @@ void grid::transferir_aceleraciones() {
       for (unsigned long pj = pi + 1; pj < bloques[indice_bloque].getParticulas().size();
            pj++) {  // reducir las iteraciones de este bucle
         bloques[indice_bloque].getParticulas()[pi].interactuar_aceleracion(
-            bloques[indice_bloque].getParticulas()[pj], h, m, true);
+            bloques[indice_bloque].getParticulas()[pj], h, m);
       }
       // bloques contiguos
       for (int const bloques_contiguo : bloques_contiguos) {
-        for (unsigned long pj = 0; pj < bloques[bloques_contiguo].getParticulas().size(); pj++) {
-          bloques[indice_bloque].getParticulas()[pi].interactuar_aceleracion(
-              bloques[bloques_contiguo].getParticulas()[pj], h, m, false);
+        if (bloques_contiguo > indice_bloque) {
+          for (unsigned long pj = 0; pj < bloques[bloques_contiguo].getParticulas().size(); pj++) {
+            bloques[indice_bloque].getParticulas()[pi].interactuar_aceleracion(
+                bloques[bloques_contiguo].getParticulas()[pj], h, m);
+          }
         }
       }
     }
@@ -165,12 +209,14 @@ void grid::calcular_densidades() {
     for (unsigned long pi = 0; pi < bloques[indice_b].getParticulas().size(); pi++) {
       for (unsigned long pj = pi + 1; pj < bloques[indice_b].getParticulas().size(); pj++) {
         bloques[indice_b].getParticulas()[pi].interactuar_densidad(
-            bloques[indice_b].getParticulas()[pj], h, true);
+            bloques[indice_b].getParticulas()[pj], h);
       }
       for (int const bloques_contiguo : bloques_contiguos) {
-        for (unsigned long pj = 0; pj < bloques[bloques_contiguo].getParticulas().size(); pj++) {
-          bloques[indice_b].getParticulas()[pi].interactuar_densidad(
-              bloques[bloques_contiguo].getParticulas()[pj], h, false);
+         if (bloques_contiguo > indice_b){
+            for (unsigned long pj = 0; pj < bloques[bloques_contiguo].getParticulas().size(); pj++) {
+              bloques[indice_b].getParticulas()[pi].interactuar_densidad(
+                  bloques[bloques_contiguo].getParticulas()[pj], h);
+            }
         }
       }
     }
@@ -338,6 +384,49 @@ void mySort(std::vector<T> & arr) {
 }
 
 // Almacena los resultados de la simulación en el archivo de salida
+void merge(std::vector<particula>& arr, size_t l, size_t m, size_t r) {
+  size_t const n1 = m - l + 1;
+  size_t const n2 = r - m;
+  // Crear vectores temporales
+  std::vector<particula> L(arr.begin() + l, arr.begin() + l + n1);
+  std::vector<particula> R(arr.begin() + m + 1, arr.begin() + m + 1 + n2);
+  // Índices iniciales de los subvectores
+  size_t i = 0, j = 0, k = l;
+  // Combinar los subvectores de nuevo en arr
+  while (i < n1 && j < n2) {
+    if (L[i].getid() <= R[j].getid()) {
+      arr[k++] = L[i++];
+    } else {
+      arr[k++] = R[j++];
+    }
+  }
+  // Copiar los elementos restantes de L (si los hay)
+  while (i < n1) {
+    arr[k++] = L[i++];
+  }
+  // Copiar los elementos restantes de R (si los hay)
+  while (j < n2) {
+    arr[k++] = R[j++];
+  }
+}
+
+// Función principal de merge sort
+void mergeSort(std::vector<particula>& arr) {
+  size_t const n = arr.size();
+
+  // Comenzar con subvectores de tamaño 1 y luego combinarlos
+  for (size_t current_size = 1; current_size < n; current_size *= 2) {
+    // Elegir índices de inicio de subvectores
+    for (size_t left_start = 0; left_start < n - 1; left_start += 2 * current_size) {
+      size_t const mid = std::min(left_start + current_size - 1, n - 1);
+      size_t const right_end = std::min(left_start + 2 * current_size - 1, n - 1);
+
+      // Combinar subvectores
+      merge(arr, left_start, mid, right_end);
+    }
+  }
+}
+
 void grid::almacenar_resultados(std::ofstream & outputFile, double ppm, std::vector<particula> const & part) {
   outputFile.write(as_buffer(ppm), sizeof(ppm));
   outputFile.write(as_buffer(part.size()), sizeof(part.size()));
@@ -345,34 +434,36 @@ void grid::almacenar_resultados(std::ofstream & outputFile, double ppm, std::vec
   for (int i = 0; i < getnx() * getny() * getnz(); i++) {
     for (auto & particula : bloques[i].getParticulas()) { particulas.push_back(particula); }
   }
-  mySort(particulas);
+  mergeSort(particulas);
+
   // Escribir los datos de las partículas
   for (auto const & particula : particulas) { escribir_datos_particulas(outputFile, particula); }
   outputFile.close();
 }
 
-// Metodo para imprimir todas las particulas.
-void grid::imprimir_output() {
-  std::ofstream outputFile("archivo.out");
-  int const precision = 30;  // ajusta según tus necesidades
-  outputFile << std::fixed << std::setprecision(precision);
+//Metodo para imprimir todas las particulas.
+void grid::imprimir_output(const std::string& nombreArchivo) {
+  std::ofstream outputFile(nombreArchivo);
+
   if (outputFile.is_open()) {
+    outputFile << "{ \"particulas\": [";
+    bool verdadero = false;
     for (int i = 0; i < getnx() * getny() * getnz(); i++) {
-      outputFile << "\n\nBloque " << i << ": " << bloques[i].getParticulas().size()
-                 << " particulas: \n";
-      for (auto & particula : bloques[i].getParticulas()) {
-        outputFile << "Particula " << particula.getid() << ": \n";
-        outputFile << "p: " << particula.getpx() << ", " << particula.getpy() << ", "
-                   << particula.getpz() << "\n";
-        outputFile << "hv: " << particula.gethvx() << ", " << particula.gethvy() << ", "
-                   << particula.gethvz() << "\n";
-        outputFile << "v: " << particula.getvx() << ", " << particula.getvy() << ", "
-                   << particula.getvz() << "\n";
-        outputFile << "densidad: " << particula.getp() << "\n";
-        outputFile << "a: " << particula.getax() << ", " << particula.getay() << ", "
-                   << particula.getaz() << "\n";
-      }
+        for (auto & particula : bloques[i].getParticulas()) {
+        if (verdadero){
+            outputFile << ",";
+        }else{
+            verdadero = true;
+        }
+        outputFile << "[" <<particula.getid()<<", ";
+        outputFile << particula.getpx() << ", " << particula.getpy() << ", " << particula.getpz()<<", ";
+        outputFile << particula.gethvx() << ", " << particula.gethvy() << ", " << particula.gethvz()<<", ";
+        outputFile << particula.getvx() << ", " << particula.getvy() << ", " << particula.getvz()<<", ";
+        outputFile << particula.getp()<<", ";
+        outputFile << particula.getax() << ", " << particula.getay() << ", " << particula.getaz()<<"]";
+        }
     }
+    outputFile << "]}";
     outputFile.close();
     std::cout << "Texto escrito en archivo.out" << '\n';
   } else {

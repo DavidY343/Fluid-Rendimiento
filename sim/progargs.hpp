@@ -82,10 +82,10 @@ class particula {
     }
 
     void inicializar_densidad_aceleracion();
-    void interactuar_densidad(particula & part, double h, bool sumar_a_ambas);
+    void interactuar_densidad(particula & part, double h);
 
-    void interactuar_aceleracion(particula & part, double h, double m, bool sumar_a_ambas);
-    void interactuar_aceleracion2(particula & part, std::vector<double> & d_a, bool sumar_a_ambas);
+    void interactuar_aceleracion(particula & part, double h, double m);
+    void interactuar_aceleracion2(particula & part, std::vector<double> & d_a);
     void transformar_densidad(double h, double m);
     [[nodiscard]] double calcular_factor_aceleracion(double h, double dist, double m,
                                                      particula const & part) const;
