@@ -96,8 +96,6 @@ class grid {
     void almacenar_resultados(std::ofstream & outputFile, double ppm, std::vector<particula> const & part);
     void bucle_colisiones(int num_bloque, bool lim_inf, int dimension);
 
-    void imprimir_output(const std::string&);
-
     particula acceder_bloque_part(int b, int p) { return bloques[b].getParticulas()[p]; }
 
     [[nodiscard]] std::vector<int> obtener_contiguos(int n) const;

@@ -4,7 +4,6 @@
 
 #include "../sim/block.hpp"
 #include "../sim/grid.hpp"
-#include "../sim/progargs.hpp"
 
 #include <fstream>
 #include <iostream>

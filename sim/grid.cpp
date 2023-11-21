@@ -6,10 +6,11 @@
 //
 
 #include "grid.hpp"
+
 #include "progargs.cpp"
 #include "progargs.hpp"
+
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <tuple>
 
@@ -81,66 +82,25 @@ void grid::recolocar_particula(particula const & part) {  // esta funcion se pue
   return coordenadas;
 }
 
-// Realiza la simulación, incluyendo el reposicionamiento de partículas, inicialización de densidades,
-// cálculo de densidades, transformación de densidades, transferencia de aceleraciones,
+// Realiza la simulación, incluyendo el reposicionamiento de partículas, inicialización de
+// densidades, cálculo de densidades, transformación de densidades, transferencia de aceleraciones,
 // colisiones de partículas y movimiento de partículas
 void grid::simular() {
   // 4.3.1
   reposicionar_particulas();
-
-  /*
-  std::stringstream nombre1;
-  nombre1<<"json/repos-base-"<<i<<".json";
-  imprimir_output(nombre1.str());
-   */
-
   // 4.3.2
   // inicializar densidades y aceleraciones, a pesar del nombre
   inicializar_densidades();
-
-  /*
-  std::stringstream nombre2;
-  nombre2<<"json/initacc-base-"<<i<<".json";
-  imprimir_output(nombre2.str());
-  */
-
   // calcular densidades
   calcular_densidades();
-
-  /*
-  std::stringstream nombre3;
-  nombre3<<"json/densinc-base-"<<i<<".json";
-  imprimir_output(nombre3.str());
-   */
-
   // transformar densidades
   transformar_densidades();
-
-  /*
-  std::stringstream nombre4;
-  nombre4<<"json/denstransf-base-"<<i<<".json";
-  imprimir_output(nombre4.str());
-   */
-
   // calcular aceleraciones
   transferir_aceleraciones();
-
-  /*
-  std::stringstream nombre5;
-  nombre5<<"json/denstransf-base-"<<i<<".json";
-  imprimir_output(nombre5.str());
-   */
-
   // 4.3.3
   colisiones_particulas();
   // 4.3.4 y 4.3.5
   movimiento_particulas();
-
-  /*
-  std::stringstream nombre6;
-  nombre6<<"json/boundint-base-"<<i<<".json";
-  imprimir_output(nombre6.str());
-   */
 }
 
 // Inicializa las densidades y aceleraciones de las partículas en cada bloque de la malla
@@ -152,7 +112,6 @@ void grid::inicializar_densidades() {
   }
 }
 
-
 // Transforma las densidades de las partículas en cada bloque de la malla
 void grid::transformar_densidades() {
   for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
@@ -162,23 +121,8 @@ void grid::transformar_densidades() {
   }
 }
 
-/*
-
-  Version en dos bucles
-  for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
-    for (unsigned long pi = 0; pi < bloques[indice_bloque].getParticulas().size(); pi++) {
-      std::vector<int> const bloques_contiguos = obtener_contiguos(indice_bloque);
-      for (unsigned long b2 = 0; b2 < bloques_contiguos.size(); b2++) {
-        for (unsigned long pj = 0; pj < bloques[b2].getParticulas().size(); pj++) {
-          bloques[indice_bloque].getParticulas()[pi].interactuar_aceleracion(bloques[b2].getParticulas()[pj],
-  h, m, false);
-        }
-      }
-    }
-  }
- */
-// Transfiere las aceleraciones entre partiuclas de un mismo bloque y entre particulas de bloque contiguos
-// Hemos implementado una fusion de bucle
+// Transfiere las aceleraciones entre partiuclas de un mismo bloque y entre particulas de bloque
+// contiguos Hemos implementado una fusion de bucle
 void grid::transferir_aceleraciones() {
   for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
     std::vector<int> const bloques_contiguos = obtener_contiguos(indice_bloque);
@@ -212,31 +156,19 @@ void grid::calcular_densidades() {
             bloques[indice_b].getParticulas()[pj], h);
       }
       for (int const bloques_contiguo : bloques_contiguos) {
-         if (bloques_contiguo > indice_b){
-            for (unsigned long pj = 0; pj < bloques[bloques_contiguo].getParticulas().size(); pj++) {
-              bloques[indice_b].getParticulas()[pi].interactuar_densidad(
-                  bloques[bloques_contiguo].getParticulas()[pj], h);
-            }
+        if (bloques_contiguo > indice_b) {
+          for (unsigned long pj = 0; pj < bloques[bloques_contiguo].getParticulas().size(); pj++) {
+            bloques[indice_b].getParticulas()[pi].interactuar_densidad(
+                bloques[bloques_contiguo].getParticulas()[pj], h);
+          }
         }
       }
     }
   }
 }
 
-/*Versión en dos bucles
-  for (int b = 0; b < nx * ny * nz; b++) {
-    for (unsigned long pi = 0; pi < bloques[b].getParticulas().size(); pi++) {
-      std::vector<int> const bloques_contiguos = obtener_contiguos(b);
-      for (int const bloques_contiguo : bloques_contiguos) {
-        for (unsigned long pj = 0; pj < bloques[bloques_contiguo].getParticulas().size(); pj++) {
-          bloques[b].getParticulas()[pi].interactuar_densidad(bloques[bloques_contiguo].getParticulas()[pj],
-  h, false);
-        }
-      }
-    }
-  }*/
-
-// Realiza colisiones de partículas con los límites de la solo si te encuentras en la esquina de la malla
+// Realiza colisiones de partículas con los límites de la solo si te encuentras en la esquina de la
+// malla
 void grid::colisiones_particulas() {
   std::vector<int> coordenadas;
   for (int i = 0; i < getnx() * getny() * getnz(); i++) {
@@ -253,7 +185,7 @@ void grid::colisiones_particulas() {
   }
 }
 
-//implementacion del bucle de la funcoin anterior
+// implementacion del bucle de la funcoin anterior
 void grid::bucle_colisiones(int num_bloque, bool lim_inf, int dimension) {
   for (auto & particula : bloques[num_bloque].getParticulas()) {
     switch (dimension) {
@@ -365,69 +297,49 @@ void escribir_datos_particulas(std::ofstream & outputFile, particula const & par
   outputFile.write(as_buffer(vz_dat), sizeof(vz_dat));
 }
 
-// Función de ordenación personalizada para las partículas
-//Solo se ha implementado esto porque no funcian el swap, ademas no de recursion para ordenar
-template <typename T>
-void mySwap(T & a, T & b) {
-  T temp = a;
-  a      = b;
-  b      = temp;
-}
-
-template <typename T>
-void mySort(std::vector<T> & arr) {
-  for (size_t i = 0; i < arr.size() - 1; ++i) {
-    for (size_t j = 0; j < arr.size() - 1 - i; ++j) {
-      if (arr[j + 1].getid() < arr[j].getid()) { mySwap(arr[j], arr[j + 1]); }
-    }
-  }
-}
-
 // Almacena los resultados de la simulación en el archivo de salida
-void merge(std::vector<particula>& arr, size_t l, size_t m, size_t r) {
-  size_t const n1 = m - l + 1;
-  size_t const n2 = r - m;
-  // Crear vectores temporales
-  std::vector<particula> L(arr.begin() + l, arr.begin() + l + n1);
-  std::vector<particula> R(arr.begin() + m + 1, arr.begin() + m + 1 + n2);
+void merge(std::vector<particula> & arr, int l_dat, int m_dat, int r) {
+  int const n1_dat = m_dat - l_dat + 1;
+  int const n2_dat = r - m_dat;
+  std::vector<particula> L_vector(arr.begin() + l_dat, arr.begin() + l_dat + n1_dat);
+  std::vector<particula> R_vector(arr.begin() + m_dat + 1, arr.begin() + m_dat + 1 + n2_dat);
   // Índices iniciales de los subvectores
-  size_t i = 0, j = 0, k = l;
+  int i_dat = 0;
+  int j_dat = 0;
+  int k_dat = l_dat;
   // Combinar los subvectores de nuevo en arr
-  while (i < n1 && j < n2) {
-    if (L[i].getid() <= R[j].getid()) {
-      arr[k++] = L[i++];
+  while (i_dat < n1_dat && j_dat < n2_dat) {
+    if (L_vector[i_dat].getid() <= R_vector[j_dat].getid()) {
+      arr[k_dat++] = L_vector[i_dat++];
     } else {
-      arr[k++] = R[j++];
+      arr[k_dat++] = R_vector[j_dat++];
     }
   }
-  // Copiar los elementos restantes de L (si los hay)
-  while (i < n1) {
-    arr[k++] = L[i++];
-  }
-  // Copiar los elementos restantes de R (si los hay)
-  while (j < n2) {
-    arr[k++] = R[j++];
-  }
+  // Copiar los elementos restantes de L_vector (si los hay)
+  while (i_dat < n1_dat) { arr[k_dat++] = L_vector[i_dat++]; }
+  // Copiar los elementos restantes de R_vector (si los hay)
+  while (j_dat < n2_dat) { arr[k_dat++] = R_vector[j_dat++]; }
 }
 
 // Función principal de merge sort
-void mergeSort(std::vector<particula>& arr) {
-  size_t const n = arr.size();
+void mergeSort(std::vector<particula> & arr) {
+  size_t const n_dat = arr.size();
 
   // Comenzar con subvectores de tamaño 1 y luego combinarlos
-  for (size_t current_size = 1; current_size < n; current_size *= 2) {
+  for (size_t current_size = 1; current_size < n_dat; current_size *= 2) {
     // Elegir índices de inicio de subvectores
-    for (size_t left_start = 0; left_start < n - 1; left_start += 2 * current_size) {
-      size_t const mid = std::min(left_start + current_size - 1, n - 1);
-      size_t const right_end = std::min(left_start + 2 * current_size - 1, n - 1);
+    for (size_t left_start = 0; left_start < n_dat - 1; left_start += 2 * current_size) {
+      size_t const mid       = std::min(left_start + current_size - 1, n_dat - 1);
+      size_t const right_end = std::min(left_start + 2 * current_size - 1, n_dat - 1);
 
       // Combinar subvectores
-      merge(arr, left_start, mid, right_end);
+      merge(arr, static_cast<int>(left_start), static_cast<int>(mid), static_cast<int>(right_end));
     }
   }
 }
 
-void grid::almacenar_resultados(std::ofstream & outputFile, double ppm, std::vector<particula> const & part) {
+void grid::almacenar_resultados(std::ofstream & outputFile, double ppm,
+                                std::vector<particula> const & part) {
   outputFile.write(as_buffer(ppm), sizeof(ppm));
   outputFile.write(as_buffer(part.size()), sizeof(part.size()));
   std::vector<particula> particulas;
@@ -440,77 +352,3 @@ void grid::almacenar_resultados(std::ofstream & outputFile, double ppm, std::vec
   for (auto const & particula : particulas) { escribir_datos_particulas(outputFile, particula); }
   outputFile.close();
 }
-
-//Metodo para imprimir todas las particulas.
-void grid::imprimir_output(const std::string& nombreArchivo) {
-  std::ofstream outputFile(nombreArchivo);
-
-  if (outputFile.is_open()) {
-    outputFile << "{ \"particulas\": [";
-    bool verdadero = false;
-    for (int i = 0; i < getnx() * getny() * getnz(); i++) {
-        for (auto & particula : bloques[i].getParticulas()) {
-        if (verdadero){
-            outputFile << ",";
-        }else{
-            verdadero = true;
-        }
-        outputFile << "[" <<particula.getid()<<", ";
-        outputFile << particula.getpx() << ", " << particula.getpy() << ", " << particula.getpz()<<", ";
-        outputFile << particula.gethvx() << ", " << particula.gethvy() << ", " << particula.gethvz()<<", ";
-        outputFile << particula.getvx() << ", " << particula.getvy() << ", " << particula.getvz()<<", ";
-        outputFile << particula.getp()<<", ";
-        outputFile << particula.getax() << ", " << particula.getay() << ", " << particula.getaz()<<"]";
-        }
-    }
-    outputFile << "]}";
-    outputFile.close();
-    std::cout << "Texto escrito en archivo.out" << '\n';
-  } else {
-    std::cerr << "No se pudo abrir el archivo.\n";
-  }
-}
-
-// No me deja usar mergesort pq me dice que es recursivo xD
-/*
-void merge(std::vector<particula>& arr, size_t l, size_t m, size_t r) {
-  size_t n1 = m - l + 1;
-  size_t n2 = r - m;
-  // Crear vectores temporales
-  std::vector<particula> L(arr.begin() + l, arr.begin() + l + n1);
-  std::vector<particula> R(arr.begin() + m + 1, arr.begin() + m + 1 + n2);
-  // Índices iniciales de los subvectores
-  size_t i = 0, j = 0, k = l;
-  // Combinar los subvectores de nuevo en arr
-  while (i < n1 && j < n2) {
-    if (L[i].getid() <= R[j].getid()) {
-        arr[k++] = L[i++];
-    } else {
-        arr[k++] = R[j++];
-    }
-  }
-  // Copiar los elementos restantes de L (si los hay)
-  while (i < n1) {
-    arr[k++] = L[i++];
-  }
-  // Copiar los elementos restantes de R (si los hay)
-  while (j < n2) {
-    arr[k++] = R[j++];
-  }
-}
-
-// Función principal de merge sort
-void mergeSort(std::vector<particula>& arr, size_t l, size_t r) {
-  if (l < r) {
-    // Encuentra el punto medio
-    size_t m = l + (r - l) / 2;
-
-    // Ordena la primera y la segunda mitad
-    mergeSort(arr, l, m);
-    mergeSort(arr, m + 1, r);
-
-    // Combina las mitades ordenadas
-    merge(arr, l, m, r);
-  }
-}
-*/

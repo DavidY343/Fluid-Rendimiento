@@ -42,19 +42,6 @@ class particula {
     // Destructor
     ~particula() = default;
 
-    // Funciones miembro
-    void setPosicion(double new_x, double new_y, double new_z) {
-      px = new_x;
-      py = new_y;
-      pz = new_z;
-    }
-
-    [[nodiscard]] double getVelocidadX() const { return vx; }
-
-    [[nodiscard]] double getVelocidadY() const { return vy; }
-
-    [[nodiscard]] double getVelocidadZ() const { return vz; }
-
     // Operador de asignación de copia
     particula & operator=(particula const & other) {
       if (this != &other) {
@@ -176,14 +163,12 @@ class particula {
 
 int n_params(int argc);
 
-// funciones
 int comprobar_archivos(std::vector<std::string> const & argumentos, std::ifstream const & inputFile,
                        std::ofstream const & outputFile);
 
 int comprobar_params(std::vector<std::string> const & argumentos, std::ifstream const & inputFile,
                      std::ofstream const & outputFile);
 
-std::vector<double> longitud_masa(std::ifstream const & inputFile);
 void comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_particulas_int);
 std::vector<particula> crear_particulas(std::ifstream const & inputFile);
 

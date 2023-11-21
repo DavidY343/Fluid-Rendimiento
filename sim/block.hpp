@@ -46,42 +46,15 @@ class block {
 
     std::vector<particula> devolver_particulas();
 
-    // espero poder elinar esta funcion
     static std::vector<particula> eliminar(std::vector<particula> v, int e);
 
     void anhadir_particulas(particula const & part);
 
     [[nodiscard]] bool p_bloque(particula p) const;
 
-    [[nodiscard]] double getpz() const { return pz; }
-
-    [[nodiscard]] double getSx() const { return sx; }
-
-    [[nodiscard]] double getSy() const { return sy; }
-
-    [[nodiscard]] double getSz() const { return sz; }
-
-    [[nodiscard]] double getPx() const { return px; }
-
-    [[nodiscard]] double getPy() const { return py; }
-
-    [[nodiscard]] double getPz() const { return pz; }
 
     [[nodiscard]] std::vector<particula> & getParticulas() { return particulas; }
 
-    void setSx(double new_sx) { sx = new_sx; }
-
-    void setSy(double new_sy) { sy = new_sy; }
-
-    void setSz(double new_sz) { sz = new_sz; }
-
-    void setPx(double new_px) { px = new_px; }
-
-    void setPy(double new_py) { py = new_py; }
-
-    void setPz(double new_pz) { pz = new_pz; }
-
-    void setParticulas(std::vector<particula> & new_particulas) { particulas = new_particulas; }
 
   private:
     /*Tamaño de bloques*/
