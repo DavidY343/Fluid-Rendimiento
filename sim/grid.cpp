@@ -333,7 +333,7 @@ void mergeSort(std::vector<particula> & arr) {
 void grid::almacenar_resultados(std::ofstream & outputFile, double ppm,
                                 std::vector<particula> const & part) {
   outputFile.write(as_buffer(static_cast<float>(ppm)), sizeof(float));
-  outputFile.write(as_buffer(part.size()), sizeof(part.size()));
+  outputFile.write(as_buffer(static_cast<int>(part.size())), sizeof(int));
   std::vector<particula> particulas;
   for (int i = 0; i < getnx() * getny() * getnz(); i++) {
     for (auto & particula : bloques[i].getParticulas()) { particulas.push_back(particula); }
