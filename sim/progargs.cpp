@@ -1,14 +1,5 @@
-//
-// Created by david on 11/7/23.
-//
-
-
-
-//
-// Created by david on 10/3/23.
-//
-
 #include "progargs.hpp"
+
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
@@ -32,7 +23,8 @@ int comprobar_archivos(std::vector<std::string> const & argumentos, std::ifstrea
   return 0;
 }
 
-// Función que comprueba los parámetros del programa, incluyendo el número de pasos de tiempo y la validez del formato
+// Función que comprueba los parámetros del programa, incluyendo el número de pasos de tiempo y la
+// validez del formato
 int comprobar_params(std::vector<std::string> const & argumentos, std::ifstream const & inputFile,
                      std::ofstream const & outputFile) {
   try {
@@ -51,7 +43,6 @@ int comprobar_params(std::vector<std::string> const & argumentos, std::ifstream 
 
   return comprobar_archivos(argumentos, inputFile, outputFile);
 }
-
 
 // Función que verifica el número de parámetros de la línea de comandos
 int n_params(int argc) {
@@ -85,7 +76,7 @@ T read_binary_value(std::istream & is) {
   return value;
 }
 
-//Comprobamos que los parametros que leemos de la cabecera estan bien
+// Comprobamos que los parametros que leemos de la cabecera estan bien
 void comprobar_fallos_cabecera(std::vector<particula> const & particulas, int n_particulas_int) {
   int const longitud = static_cast<int>(particulas.size());
   int const error    = -5;
@@ -206,9 +197,9 @@ std::vector<double> particula::calcular_d_a(particula const & part, double h, do
 
 // Actualiza la aceleración de la partícula basándose en la interacción con otra partícula
 void particula::interactuar_aceleracion2(particula & part, std::vector<double> & d_a) {
-  ax += d_a[0];
-  ay += d_a[1];
-  az += d_a[2];
+  ax      += d_a[0];
+  ay      += d_a[1];
+  az      += d_a[2];
   part.ax -= d_a[0];
   part.ay -= d_a[1];
   part.az -= d_a[2];

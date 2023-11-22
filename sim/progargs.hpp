@@ -1,7 +1,3 @@
-//
-// Created by david on 11/7/23.
-//
-
 #ifndef ARCOS_PROGARGS_HPP
 #define ARCOS_PROGARGS_HPP
 
@@ -118,6 +114,7 @@ class particula {
 
     [[nodiscard]] double getaz() const { return az; }
 
+    // Setters
     void setpx(double new_px) { px = new_px; }
 
     void setpy(double new_py) { py = new_py; }
@@ -184,4 +181,4 @@ template <typename T>
   requires(std::is_integral_v<T> or std::is_floating_point_v<T>)
 T read_binary_value(std::istream & is);
 
-#endif
+#endif  // ARCOS_PROGARGS_HPP

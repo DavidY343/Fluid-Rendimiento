@@ -1,7 +1,3 @@
-//
-// Created by david on 11/7/23.
-//
-
 #include "block.hpp"
 
 // Función para devolver un vector de partículas que no están dentro del bloque
@@ -19,7 +15,8 @@ std::vector<particula> block::devolver_particulas() {
   return devolver;
 }
 
-// Función para eliminar un elemento en una posición específica de un vector, no deja usar la funcoin erase
+// Función para eliminar un elemento en una posición específica de un vector, no deja usar la
+// Funcion erase
 std::vector<particula> block::eliminar(std::vector<particula> v, int e) {
   std::vector<particula> eliminado;
   // Iterar sobre el vector original y agregar elementos excepto el elemento en la posición 'e'

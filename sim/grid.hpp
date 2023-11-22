@@ -28,14 +28,12 @@ class grid {
             std::vector<double> const position = {constantes::bmin_const[0] + i * sx,
                                                   constantes::bmin_const[1] + j * sy,
                                                   constantes::bmin_const[2] + k * sz};
-            std::vector<double> const size = {sx, sy, sz};
-            bloques.emplace_back(position,size);
+            std::vector<double> const size     = {sx, sy, sz};
+            bloques.emplace_back(position, size);
           }
         }
       }
-      for (auto const & particula : particulas) {
-        recolocar_particula(particula);
-      }
+      for (auto const & particula : particulas) { recolocar_particula(particula); }
     }
 
     grid(grid const & other) = default;
@@ -83,7 +81,7 @@ class grid {
     void simular();
 
     void reposicionar_particulas();
-    void recolocar_particula(const particula &part);
+    void recolocar_particula(particula const & part);
 
     void inicializar_densidades();
     void calcular_densidades();
@@ -93,13 +91,15 @@ class grid {
     void colisiones_particulas();
     void movimiento_particulas();
     void bucle_limites(int num_bloque, bool lim_inf, int dimension);
-    void almacenar_resultados(std::ofstream & outputFile, double ppm, std::vector<particula> const & part);
+    void almacenar_resultados(std::ofstream & outputFile, double ppm,
+                              std::vector<particula> const & part);
     void bucle_colisiones(int num_bloque, bool lim_inf, int dimension);
 
     particula acceder_bloque_part(int b, int p) { return bloques[b].getParticulas()[p]; }
 
     [[nodiscard]] std::vector<int> obtener_contiguos(int n) const;
     [[nodiscard]] std::vector<int> obtener_coordenadas(int n) const;
+
     [[nodiscard]] int obtener_indice(int i, int j, int k) const { return nz * ny * i + nz * j + k; }
 
     /*Getters*/
@@ -114,6 +114,8 @@ class grid {
     [[nodiscard]] double getsy() const { return sy; }
 
     [[nodiscard]] double getsz() const { return sz; }
+
+    [[nodiscard]] std::vector<block> getbloques() const { return bloques; }
 
   private:
     double m;
@@ -131,5 +133,6 @@ class grid {
 void escribir_datos_particulas(std::ofstream & outputFile, particula const & particula);
 std::tuple<float, float, float, float, float, float, float, float, float>
     convertirDatos(particula const & particula);
-void init_simulation(std::ifstream const & inputFile, int max_iteraciones, std::ofstream & outputFile);
+void init_simulation(std::ifstream const & inputFile, int max_iteraciones,
+                     std::ofstream & outputFile);
 #endif  // ARCOS_GRID_HPP

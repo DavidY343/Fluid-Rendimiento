@@ -1,7 +1,3 @@
-//
-// Created by albavidales on 11/13/23.
-//
-
 #include "sim/progargs.hpp"
 
 #include "gtest/gtest.h"
@@ -46,7 +42,7 @@ TEST(ComprobarParamsTest, TimeStepsNegativos) {
   EXPECT_EQ(-2, comprobar_params(args, inputFile, outputFile));
 }
 
-TEST(ComprobarArchivosTest, ErrorAlAbrirInputFile) {
+TEST(ComprobarParamsTest, ErrorAlAbrirInputFile) {
   // Caso de prueba: Input no se abre correctamente
   std::vector<std::string> const args{"10", "no_existe_input.fld", "output.fld"};
   std::ifstream const inputFile(args[1],
@@ -55,7 +51,7 @@ TEST(ComprobarArchivosTest, ErrorAlAbrirInputFile) {
   EXPECT_EQ(-3, comprobar_params(args, inputFile, outputFile));
 }
 
-TEST(ComprobarArchivosTest, ErrorAlAbrirOutputFile) {
+TEST(ComprobarParamsTest, ErrorAlAbrirOutputFile) {
   // Caso de prueba: Output no se abre correctamente
   std::vector<std::string> const args{"10", "small.fld"};
   std::ifstream const inputFile(args[1],
@@ -64,8 +60,7 @@ TEST(ComprobarArchivosTest, ErrorAlAbrirOutputFile) {
   EXPECT_EQ(-4, comprobar_params(args, inputFile, outputFile));
 }
 
-// EN ESTOS TRES HABÍA QUE CAMBIAR LO DEL ppm
-TEST(ComprobarFallosCabeceraTest, InvalidNumberOfParticles2) {
+TEST(ComprobarFallosCabeceraTest, InvalidNumberOfParticles) {
   // Caso de prueba: Número de partículas no válido
   std::ifstream const inputFile("small.fld",
                                 std::ios::binary);  // Creamos un objeto inputFile para lectura
@@ -86,7 +81,7 @@ TEST(ComprobarFallosCabeceraTest, InvalidNumberOfParticles2) {
       "Invalid number of particles: 0.");
 }
 
-TEST(ComprobarFallosCabecera, InvalidNumberOfParticles) {
+TEST(ComprobarFallosCabecera, DiferentNumberOfParticles) {
   // Caso de prueba: Número de partículas diferente al de la cabecera
   std::ifstream const inputFile("small.fld",
                                 std::ios::binary);  // Creamos un objeto inputFile para lectura

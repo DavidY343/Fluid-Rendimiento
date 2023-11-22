@@ -1,10 +1,3 @@
-//
-// Created by david on 11/7/23.
-//
-//
-// Created by david on 10/3/23.
-//
-
 #include "grid.hpp"
 
 #include "progargs.cpp"
@@ -31,7 +24,7 @@ void grid::reposicionar_particulas() {
 }
 
 // Recoloca una partícula en el bloque correspondiente de la malla
-void grid::recolocar_particula(particula const & part) {  // esta funcion se puede simplificar
+void grid::recolocar_particula(particula const & part) {
   int indice_i = static_cast<int>((part.getpx() - constantes::bmin_const[0]) / sx);
   if (indice_i < 0) {
     indice_i = 0;
@@ -86,20 +79,19 @@ void grid::recolocar_particula(particula const & part) {  // esta funcion se pue
 // densidades, cálculo de densidades, transformación de densidades, transferencia de aceleraciones,
 // colisiones de partículas y movimiento de partículas
 void grid::simular() {
-  // 4.3.1
+  // Método que busca las partículas cuya posición no corresponde al bloque en el que están
   reposicionar_particulas();
-  // 4.3.2
-  // inicializar densidades y aceleraciones, a pesar del nombre
+  // inicializar densidades y aceleraciones
   inicializar_densidades();
-  // calcular densidades
+  // calcular densidades según las particulas cercanas
   calcular_densidades();
   // transformar densidades
   transformar_densidades();
-  // calcular aceleraciones
+  // calcular aceleraciones según las partículas cercanas
   transferir_aceleraciones();
-  // 4.3.3
+  // Actualiza aceleración según las colisiones con las paredes del recinto
   colisiones_particulas();
-  // 4.3.4 y 4.3.5
+  // Actualiza todas las particulas y se tienen en cuenta las colisiones
   movimiento_particulas();
 }
 
@@ -127,8 +119,7 @@ void grid::transferir_aceleraciones() {
   for (int indice_bloque = 0; indice_bloque < nx * ny * nz; indice_bloque++) {
     std::vector<int> const bloques_contiguos = obtener_contiguos(indice_bloque);
     for (unsigned long pi = 0; pi < bloques[indice_bloque].getParticulas().size(); pi++) {
-      for (unsigned long pj = pi + 1; pj < bloques[indice_bloque].getParticulas().size();
-           pj++) {  // reducir las iteraciones de este bucle
+      for (unsigned long pj = pi + 1; pj < bloques[indice_bloque].getParticulas().size(); pj++) {
         bloques[indice_bloque].getParticulas()[pi].interactuar_aceleracion(
             bloques[indice_bloque].getParticulas()[pj], h, m);
       }
@@ -155,6 +146,7 @@ void grid::calcular_densidades() {
         bloques[indice_b].getParticulas()[pi].interactuar_densidad(
             bloques[indice_b].getParticulas()[pj], h);
       }
+      // Bloques contiguos
       for (int const bloques_contiguo : bloques_contiguos) {
         if (bloques_contiguo > indice_b) {
           for (unsigned long pj = 0; pj < bloques[bloques_contiguo].getParticulas().size(); pj++) {
@@ -185,7 +177,7 @@ void grid::colisiones_particulas() {
   }
 }
 
-// implementacion del bucle de la funcoin anterior
+// implementacion del bucle de la funcion anterior
 void grid::bucle_colisiones(int num_bloque, bool lim_inf, int dimension) {
   for (auto & particula : bloques[num_bloque].getParticulas()) {
     switch (dimension) {
@@ -224,13 +216,13 @@ void grid::bucle_limites(int num_bloque, bool lim_inf, int dimension) {
   for (auto & particula : bloques[num_bloque].getParticulas()) {
     switch (dimension) {
       case 0:
-        particula.limiteRecintox(lim_inf);  // 4.3.5
+        particula.limiteRecintox(lim_inf);
         break;
       case 1:
-        particula.limiteRecintoy(lim_inf);  // 4.3.5
+        particula.limiteRecintoy(lim_inf);
         break;
       default:
-        particula.limiteRecintoz(lim_inf);  // 4.3.5
+        particula.limiteRecintoz(lim_inf);
         break;
     }
   }

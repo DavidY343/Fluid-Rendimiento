@@ -1,7 +1,3 @@
-//
-// Created by david on 11/7/23.
-//
-
 #include "../sim/block.hpp"
 #include "../sim/grid.hpp"
 

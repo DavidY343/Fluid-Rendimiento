@@ -1,11 +1,8 @@
-//
-// Created by david on 11/7/23.
-//
-
-#ifndef ARCOS_BLOCK_H
-#define ARCOS_BLOCK_H
+#ifndef ARCOS_BLOCK_HPP
+#define ARCOS_BLOCK_HPP
 
 #include "progargs.hpp"
+
 #include <iostream>
 #include <vector>
 
@@ -52,9 +49,7 @@ class block {
 
     [[nodiscard]] bool p_bloque(particula p) const;
 
-
     [[nodiscard]] std::vector<particula> & getParticulas() { return particulas; }
-
 
   private:
     /*Tamaño de bloques*/
@@ -67,4 +62,4 @@ class block {
     std::vector<particula> particulas;
 };
 
-#endif  // ARCOS_BLOCK_H
+#endif  // ARCOS_BLOCK_HPP
